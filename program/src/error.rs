@@ -19,6 +19,10 @@ pub enum ContractError {
     InactiveStaking,
     #[error("Nft is not whitelisted")]
     WhitelistError,
+    #[error("Convert with overflow")]
+    ConvertWithOverflow,
+    #[error("Math operation overflow")]
+    OperationWithOverflow,
 }
 
 impl From<ContractError> for ProgramError {
