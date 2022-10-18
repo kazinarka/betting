@@ -4,8 +4,7 @@ pub mod error;
 pub mod instruction;
 pub mod processor;
 pub mod state;
-pub mod math;
 
-solana_program::declare_id!("GyC8iyGUyVxM9ovGw6DBpPnXLWXw6aAeXB2A8SEVqnN3");
+solana_program::declare_id!("J2HYN7VBpLDobAintCQ3q8nUC5S4RtBsixKSvYLNNcam");
 
 pub type Timestamp = u64;

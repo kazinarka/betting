@@ -1,5 +1,7 @@
-use crate::consts::{ADMIN, VAULT};
+use crate::consts::{ADMIN, USER};
 use crate::error::ContractError;
+use crate::state::structs::User;
+use borsh::BorshSerialize;
 use solana_program::account_info::{next_account_info, AccountInfo};
 use solana_program::entrypoint::ProgramResult;
 use solana_program::program::{invoke, invoke_signed};
@@ -9,16 +11,10 @@ use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
 
-pub fn generate_vault(accounts: &[AccountInfo], program_id: &Pubkey) -> ProgramResult {
+pub fn add_bot(accounts: &[AccountInfo], program_id: &Pubkey, bot: Pubkey) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 
     let rent = &Rent::from_account_info(accounts.rent_info)?;
-
-    let (vault_pda, vault_bump_seed) = Pubkey::find_program_address(&[VAULT], program_id);
-
-    if accounts.pda.key != &vault_pda {
-        return Err(ContractError::InvalidInstructionData.into());
-    }
 
     let admin = ADMIN.parse::<Pubkey>().unwrap();
 
@@ -26,27 +22,52 @@ pub fn generate_vault(accounts: &[AccountInfo], program_id: &Pubkey) -> ProgramR
         return Err(ContractError::UnauthorisedAccess.into());
     }
 
-    if accounts.pda.owner != program_id {
+    let (data_address, data_address_bump) =
+        Pubkey::find_program_address(&[USER, &bot.to_bytes()], program_id);
+
+    if *accounts.bot.key != data_address {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if accounts.bot.owner != program_id {
+        let size: u64 = 32 + 32 + 1 + 1 + 1;
+
         let required_lamports = rent
-            .minimum_balance(0)
+            .minimum_balance(size as usize)
             .max(1)
-            .saturating_sub(accounts.pda.lamports());
+            .saturating_sub(accounts.bot.lamports());
 
         invoke(
-            &system_instruction::transfer(accounts.payer.key, &vault_pda, required_lamports),
+            &system_instruction::transfer(accounts.payer.key, &data_address, required_lamports),
             &[
                 accounts.payer.clone(),
-                accounts.pda.clone(),
+                accounts.bot.clone(),
                 accounts.system_program.clone(),
             ],
         )?;
 
         invoke_signed(
-            &system_instruction::assign(&vault_pda, program_id),
-            &[accounts.pda.clone(), accounts.system_program.clone()],
-            &[&[VAULT, &[vault_bump_seed]]],
+            &system_instruction::allocate(&data_address, size),
+            &[accounts.bot.clone(), accounts.system_program.clone()],
+            &[&[USER, &bot.to_bytes(), &[data_address_bump]]],
+        )?;
+
+        invoke_signed(
+            &system_instruction::assign(&data_address, program_id),
+            &[accounts.bot.clone(), accounts.system_program.clone()],
+            &[&[USER, &bot.to_bytes(), &[data_address_bump]]],
         )?;
     }
+
+    let user = User {
+        address: bot,
+        referrer: Pubkey::default(),
+        password: vec![],
+        in_game: false,
+        support_bots: false,
+        is_bot: true,
+    };
+    user.serialize(&mut &mut accounts.bot.data.borrow_mut()[..])?;
 
     Ok(())
 }
@@ -55,8 +76,8 @@ pub fn generate_vault(accounts: &[AccountInfo], program_id: &Pubkey) -> ProgramR
 pub struct Accounts<'a, 'b> {
     pub payer: &'a AccountInfo<'b>,
     pub system_program: &'a AccountInfo<'b>,
-    pub pda: &'a AccountInfo<'b>,
     pub rent_info: &'a AccountInfo<'b>,
+    pub bot: &'a AccountInfo<'b>,
 }
 
 impl<'a, 'b> Accounts<'a, 'b> {
@@ -67,8 +88,8 @@ impl<'a, 'b> Accounts<'a, 'b> {
         Ok(Accounts {
             payer: next_account_info(acc_iter)?,
             system_program: next_account_info(acc_iter)?,
-            pda: next_account_info(acc_iter)?,
             rent_info: next_account_info(acc_iter)?,
+            bot: next_account_info(acc_iter)?,
         })
     }
 }

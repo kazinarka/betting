@@ -26,16 +26,34 @@ pub fn generate_vault(matches: &ArgMatches) {
     let wallet_keypair = read_keypair_file(wallet_path).expect("Can't open file-wallet");
     let wallet_pubkey = wallet_keypair.pubkey();
 
-    let (vault_pda, _) = Pubkey::find_program_address(&["vault".as_bytes()], &program_id);
+    let (vault_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
+
+    let token = "7T6Tihm7XaQddHfXoKmzVDFKTS5zxYuDPCkuvu7CQLxi"
+        .parse::<Pubkey>()
+        .unwrap();
+
+    let (supported_token_data, _) =
+        Pubkey::find_program_address(&["whitelist".as_bytes(), &token.to_bytes()], &program_id);
+
+    println!("Whitelist {:?}", supported_token_data);
+
+    let manager = "E5L2TjtD8nVjNxoEwgizoM4wsdrAtXg52VCnFF4BG2gg"
+        .parse::<Pubkey>()
+        .unwrap();
 
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &PlatformInstruction::GenerateVault,
+        &PlatformInstruction::Init {
+            manager,
+            supported_token: token,
+            is_stablecoin: true,
+        },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
             AccountMeta::new(vault_pda, false),
             AccountMeta::new_readonly(RENT.parse::<Pubkey>().unwrap(), false),
+            AccountMeta::new(supported_token_data, false),
         ],
     )];
     let mut tx = Transaction::new_with_payer(&instructions, Some(&wallet_pubkey));

@@ -23,6 +23,8 @@ pub enum ContractError {
     ConvertWithOverflow,
     #[error("Math operation overflow")]
     OperationWithOverflow,
+    #[error("Password is too long")]
+    PasswordError,
 }
 
 impl From<ContractError> for ProgramError {
