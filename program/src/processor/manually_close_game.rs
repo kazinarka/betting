@@ -37,7 +37,7 @@ pub fn manually_close(
     let betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
     let (game_pda, game_bump) =
-        Pubkey::find_program_address(&[GAME, &accounts.user.key.to_bytes()], program_id);
+        Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -74,7 +74,7 @@ pub fn manually_close(
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     let (token_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
+        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token.key.to_bytes()], program_id);
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -87,7 +87,7 @@ pub fn manually_close(
     }
 
     if &spl_associated_token_account::get_associated_token_address(
-        accounts.payer.key,
+        &game_info.gamer1,
         accounts.token.key,
     ) != accounts.destination.key
     {
@@ -139,7 +139,7 @@ pub fn manually_close(
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
-        &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump]]],
+        &[&[GAME, &user.to_bytes(), &[game_bump]]],
     )?;
 
     if accounts.destination.owner != accounts.token_program.key {
@@ -177,7 +177,7 @@ pub fn manually_close(
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
-        &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump]]],
+        &[&[GAME, &user.to_bytes(), &[game_bump]]],
     )?;
 
     invoke_signed(
@@ -194,7 +194,7 @@ pub fn manually_close(
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
-        &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump]]],
+        &[&[GAME, &user.to_bytes(), &[game_bump]]],
     )?;
 
     Ok(())

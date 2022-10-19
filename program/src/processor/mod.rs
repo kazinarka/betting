@@ -1,6 +1,7 @@
 pub mod add_bot;
 pub mod add_supported_token;
 pub mod bet;
+pub mod close_game;
 pub mod forced_close_game;
 pub mod init;
 pub mod join_game;
@@ -29,6 +30,7 @@ use solana_program::msg;
 use solana_program::program_error::{PrintProgramError, ProgramError};
 use solana_program::pubkey::Pubkey;
 use spl_token::error::TokenError;
+use crate::processor::close_game::close;
 
 /// Program state handler
 pub struct Processor {}
@@ -94,6 +96,7 @@ impl Processor {
             BettingInstruction::ManuallyClose { user } => {
                 manually_close(accounts, program_id, user)?
             }
+            BettingInstruction::Close { user, winner_address, type_price } => close(accounts, program_id, user, winner_address, type_price)?,
         };
 
         Ok(())

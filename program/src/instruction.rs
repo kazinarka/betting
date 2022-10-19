@@ -75,26 +75,12 @@ pub enum BettingInstruction {
         #[allow(dead_code)]
         user: Pubkey,
     },
-}
-
-impl BettingInstruction {
-    // pub fn init(wallet_pubkey: Pubkey, program_id: Pubkey) -> Instruction {
-    //     let (vault_pda, _) = Pubkey::find_program_address(&["vault".as_bytes()], &program_id);
-    //
-    //     Instruction::new_with_borsh(
-    //         program_id,
-    //         &BettingInstruction::Init,
-    //         vec![
-    //             AccountMeta::new(wallet_pubkey, true),
-    //             AccountMeta::new(system_program::id(), false),
-    //             AccountMeta::new(vault_pda, false),
-    //             AccountMeta::new_readonly(
-    //                 "SysvarRent111111111111111111111111111111111"
-    //                     .parse::<Pubkey>()
-    //                     .unwrap(),
-    //                 false,
-    //             ),
-    //         ],
-    //     )
-    // }
+    Close {
+        #[allow(dead_code)]
+        user: Pubkey,
+        #[allow(dead_code)]
+        winner_address: Pubkey,
+        #[allow(dead_code)]
+        type_price: u64,
+    }
 }

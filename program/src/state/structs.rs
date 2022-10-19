@@ -40,4 +40,5 @@ pub struct User {
     pub in_game: bool,
     pub support_bots: bool,
     pub is_bot: bool,
+    pub turnover: u64,
 }

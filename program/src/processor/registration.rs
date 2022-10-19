@@ -10,6 +10,7 @@ use solana_program::pubkey::Pubkey;
 use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
+use crate::processor::require;
 
 pub fn registration(
     accounts: &[AccountInfo],
@@ -28,11 +29,13 @@ pub fn registration(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
+    require(&referrer != accounts.payer.key, "refferer must not be equal to user wallet")?;
+
     let password = password.into_bytes();
     let len = password.len() as u64;
 
     if accounts.user.owner != program_id {
-        let size: u64 = 32 + 32 + len + 1 + 1 + 1;
+        let size: u64 = 32 + 32 + len + 1 + 1 + 1 + 8;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
@@ -68,6 +71,7 @@ pub fn registration(
         in_game: false,
         support_bots: false,
         is_bot: false,
+        turnover: 0,
     };
     user.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 

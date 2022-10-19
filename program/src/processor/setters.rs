@@ -116,13 +116,11 @@ pub fn set_global_fee(accounts: &[AccountInfo], program_id: &Pubkey, fee: u64) -
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let admin = ADMIN.parse::<Pubkey>().unwrap();
+    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    if *accounts.payer.key != admin || !accounts.payer.is_signer {
+    if *accounts.payer.key != betting_info.manager || !accounts.payer.is_signer {
         return Err(ContractError::UnauthorisedAccess.into());
     }
-
-    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
     betting_info.global_fee = fee;
     betting_info.serialize(&mut &mut accounts.pda.data.borrow_mut()[..])?;
@@ -139,13 +137,11 @@ pub fn set_admin_fee(accounts: &[AccountInfo], program_id: &Pubkey, fee: u64) ->
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let admin = ADMIN.parse::<Pubkey>().unwrap();
+    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    if *accounts.payer.key != admin || !accounts.payer.is_signer {
+    if *accounts.payer.key != betting_info.manager || !accounts.payer.is_signer {
         return Err(ContractError::UnauthorisedAccess.into());
     }
-
-    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
     betting_info.admin_fee = fee;
     betting_info.serialize(&mut &mut accounts.pda.data.borrow_mut()[..])?;
@@ -162,13 +158,11 @@ pub fn set_winner_fee(accounts: &[AccountInfo], program_id: &Pubkey, fee: u64) -
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let admin = ADMIN.parse::<Pubkey>().unwrap();
+    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    if *accounts.payer.key != admin || !accounts.payer.is_signer {
+    if *accounts.payer.key != betting_info.manager || !accounts.payer.is_signer {
         return Err(ContractError::UnauthorisedAccess.into());
     }
-
-    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
     betting_info.referrer_fee = fee;
     betting_info.serialize(&mut &mut accounts.pda.data.borrow_mut()[..])?;
@@ -189,13 +183,11 @@ pub fn set_transaction_fee(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let admin = ADMIN.parse::<Pubkey>().unwrap();
+    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    if *accounts.payer.key != admin || !accounts.payer.is_signer {
+    if *accounts.payer.key != betting_info.manager || !accounts.payer.is_signer {
         return Err(ContractError::UnauthorisedAccess.into());
     }
-
-    let mut betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
     betting_info.transaction_fee = fee;
     betting_info.serialize(&mut &mut accounts.pda.data.borrow_mut()[..])?;
