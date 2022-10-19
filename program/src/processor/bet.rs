@@ -82,6 +82,7 @@ pub fn bet(
 
     user_info.support_bots = support_bot;
     user_info.in_game = true;
+    user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     let convert_value = chainlink_solana::latest_round_data(
         accounts.chainlink_program.clone(),

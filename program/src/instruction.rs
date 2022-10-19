@@ -67,6 +67,14 @@ pub enum BettingInstruction {
         #[allow(dead_code)]
         user_master: Pubkey,
     },
+    ForcedClose {
+        #[allow(dead_code)]
+        user: Pubkey,
+    },
+    ManuallyClose {
+        #[allow(dead_code)]
+        user: Pubkey,
+    },
 }
 
 impl BettingInstruction {

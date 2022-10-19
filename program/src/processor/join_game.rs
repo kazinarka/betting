@@ -89,6 +89,7 @@ pub fn bet_with_join(
 
     user_info.support_bots = support_bot;
     user_info.in_game = true;
+    user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     let game_info = get_game_info(&accounts.pda.data.borrow())?;
 
@@ -195,7 +196,7 @@ pub fn join_game(
     game_info.amount2 = amount;
     game_info.convert_amount2 = convert_amount;
     game_info.latest_bet = clock.unix_timestamp as u64;
-    game_info.serialize(&mut &mut accounts.pda.data.borrow_mut()[..])?;
+    game_info.serialize(&mut &mut accounts.game.data.borrow_mut()[..])?;
 
     Ok(())
 }

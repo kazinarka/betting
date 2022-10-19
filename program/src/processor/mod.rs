@@ -1,8 +1,10 @@
 pub mod add_bot;
 pub mod add_supported_token;
 pub mod bet;
+pub mod forced_close_game;
 pub mod init;
 pub mod join_game;
+pub mod manually_close_game;
 pub mod registration;
 pub mod setters;
 
@@ -11,8 +13,10 @@ use crate::instruction::BettingInstruction;
 use crate::processor::add_bot::add_bot;
 use crate::processor::add_supported_token::add_supported_token;
 use crate::processor::bet::bet;
+use crate::processor::forced_close_game::forced_close;
 use crate::processor::init::init;
 use crate::processor::join_game::bet_with_join;
+use crate::processor::manually_close_game::manually_close;
 use crate::processor::registration::registration;
 use crate::processor::setters::{
     change_close_delay, lock_bets, new_manager, set_admin_fee, set_global_fee, set_transaction_fee,
@@ -86,6 +90,10 @@ impl Processor {
                 support_bot,
                 user_master,
             } => bet_with_join(accounts, program_id, user_master, value, support_bot)?,
+            BettingInstruction::ForcedClose { user } => forced_close(accounts, program_id, user)?,
+            BettingInstruction::ManuallyClose { user } => {
+                manually_close(accounts, program_id, user)?
+            }
         };
 
         Ok(())
