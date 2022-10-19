@@ -36,25 +36,29 @@ pub fn bet_with_join(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (token_pda, _) = Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
+    let (token_pda, _) =
+        Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (user_pda, _) = Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
+    let (user_pda, _) =
+        Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.user.key != user_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (user_master_pda, _) = Pubkey::find_program_address(&[USER, &user_master.to_bytes()], program_id);
+    let (user_master_pda, _) =
+        Pubkey::find_program_address(&[USER, &user_master.to_bytes()], program_id);
 
     if *accounts.user_master.key != user_master_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (game_pda, _) = Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
+    let (game_pda, _) =
+        Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -78,7 +82,10 @@ pub fn bet_with_join(
 
     let supported_token_info = get_supported_token_info(&accounts.supported_token.data.borrow())?;
 
-    require(supported_token_info.mint == *accounts.token.key, "Token is not supported")?;
+    require(
+        supported_token_info.mint == *accounts.token.key,
+        "Token is not supported",
+    )?;
 
     user_info.support_bots = support_bot;
     user_info.in_game = true;
@@ -106,8 +113,10 @@ pub fn bet_with_join(
             return Err(ContractError::InvalidInstructionData.into());
         }
 
-        if &spl_associated_token_account::get_associated_token_address(&game_pda, accounts.token.key)
-            != accounts.destination.key
+        if &spl_associated_token_account::get_associated_token_address(
+            &game_pda,
+            accounts.token.key,
+        ) != accounts.destination.key
         {
             return Err(ContractError::InvalidInstructionData.into());
         }
@@ -149,7 +158,13 @@ pub fn bet_with_join(
             ],
         )?;
 
-        join_game(accounts, program_id, user_master, value, convert_value.answer)?;
+        join_game(
+            accounts,
+            program_id,
+            user_master,
+            value,
+            convert_value.answer,
+        )?;
     }
 
     Ok(())
@@ -164,7 +179,8 @@ pub fn join_game(
 ) -> ProgramResult {
     let clock = Clock::get()?;
 
-    let (game_pda, _) = Pubkey::find_program_address(&[GAME, &accounts.user_master.key.to_bytes()], program_id);
+    let (game_pda, _) =
+        Pubkey::find_program_address(&[GAME, &accounts.user_master.key.to_bytes()], program_id);
 
     if accounts.pda.key != &game_pda {
         return Err(ContractError::InvalidInstructionData.into());

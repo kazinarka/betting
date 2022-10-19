@@ -10,7 +10,9 @@ use crate::error::ContractError;
 use crate::instruction::BettingInstruction;
 use crate::processor::add_bot::add_bot;
 use crate::processor::add_supported_token::add_supported_token;
+use crate::processor::bet::bet;
 use crate::processor::init::init;
+use crate::processor::join_game::bet_with_join;
 use crate::processor::registration::registration;
 use crate::processor::setters::{
     change_close_delay, lock_bets, new_manager, set_admin_fee, set_global_fee, set_transaction_fee,
@@ -76,6 +78,14 @@ impl Processor {
                 set_transaction_fee(accounts, program_id, fee)?
             }
             BettingInstruction::AddBot { bot } => add_bot(accounts, program_id, bot)?,
+            BettingInstruction::NewGame { value, support_bot } => {
+                bet(accounts, program_id, value, support_bot)?
+            }
+            BettingInstruction::JoinGame {
+                value,
+                support_bot,
+                user_master,
+            } => bet_with_join(accounts, program_id, user_master, value, support_bot)?,
         };
 
         Ok(())

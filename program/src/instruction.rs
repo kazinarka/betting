@@ -53,6 +53,20 @@ pub enum BettingInstruction {
         #[allow(dead_code)]
         bot: Pubkey,
     },
+    NewGame {
+        #[allow(dead_code)]
+        value: u64,
+        #[allow(dead_code)]
+        support_bot: bool,
+    },
+    JoinGame {
+        #[allow(dead_code)]
+        value: u64,
+        #[allow(dead_code)]
+        support_bot: bool,
+        #[allow(dead_code)]
+        user_master: Pubkey,
+    },
 }
 
 impl BettingInstruction {

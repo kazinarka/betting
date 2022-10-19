@@ -4,6 +4,7 @@ use crate::processor::require;
 use crate::state::helpers::{get_betting_info, get_supported_token_info, get_user_info};
 use crate::state::structs::Game;
 use borsh::BorshSerialize;
+use chainlink_solana;
 use solana_program::account_info::{next_account_info, AccountInfo};
 use solana_program::clock::Clock;
 use solana_program::entrypoint::ProgramResult;
@@ -13,7 +14,6 @@ use solana_program::pubkey::Pubkey;
 use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
-use chainlink_solana;
 
 pub fn bet(
     accounts: &[AccountInfo],
@@ -37,19 +37,22 @@ pub fn bet(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (token_pda, _) = Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
+    let (token_pda, _) =
+        Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (user_pda, _) = Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
+    let (user_pda, _) =
+        Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.user.key != user_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (game_pda, _) = Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
+    let (game_pda, _) =
+        Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -72,7 +75,10 @@ pub fn bet(
 
     let supported_token_info = get_supported_token_info(&accounts.supported_token.data.borrow())?;
 
-    require(supported_token_info.mint == *accounts.token.key, "Token is not supported")?;
+    require(
+        supported_token_info.mint == *accounts.token.key,
+        "Token is not supported",
+    )?;
 
     user_info.support_bots = support_bot;
     user_info.in_game = true;
