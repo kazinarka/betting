@@ -22,7 +22,7 @@ pub fn registration(
     let rent = &Rent::from_account_info(accounts.rent_info)?;
 
     let (data_address, data_address_bump) =
-        Pubkey::find_program_address(&[USER, &referrer.to_bytes()], program_id);
+        Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.user.key != data_address {
         return Err(ContractError::InvalidInstructionData.into());

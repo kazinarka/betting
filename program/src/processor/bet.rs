@@ -13,16 +13,23 @@ use solana_program::pubkey::Pubkey;
 use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
+use chainlink_solana;
 
 pub fn bet(
     accounts: &[AccountInfo],
     program_id: &Pubkey,
-    gamer: Pubkey,
-    token: Pubkey,
     value: u64,
     support_bot: bool,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
+
+    if *accounts.token_program.key != spl_token::id() {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if !accounts.payer.is_signer {
+        return Err(ContractError::UnauthorisedAccess.into());
+    }
 
     let (betting_pda, _) = Pubkey::find_program_address(&[BETTING], program_id);
 
@@ -30,34 +37,28 @@ pub fn bet(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (token_pda, _) = Pubkey::find_program_address(&[WHITELIST, &token.to_bytes()], program_id);
+    let (token_pda, _) = Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (user_pda, _) = Pubkey::find_program_address(&[USER, &gamer.to_bytes()], program_id);
+    let (user_pda, _) = Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.user.key != user_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (game_pda, _) = Pubkey::find_program_address(&[GAME, &gamer.to_bytes()], program_id);
+    let (game_pda, _) = Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
-        return Err(ContractError::InvalidInstructionData.into());
-    }
-
-    let (bot_pda, _) = Pubkey::find_program_address(&[WHITELIST, &gamer.to_bytes()], program_id);
-
-    if *accounts.bot.key != bot_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
     let mut user_info = get_user_info(&accounts.user.data.borrow())?;
 
     require(
-        (user_info.address == gamer) || (user_info.is_bot == true),
+        (&user_info.address == accounts.payer.key) || (user_info.is_bot == true),
         "register first",
     )?;
     require(
@@ -71,12 +72,68 @@ pub fn bet(
 
     let supported_token_info = get_supported_token_info(&accounts.supported_token.data.borrow())?;
 
-    require(supported_token_info.mint == token, "Token is not supported")?;
+    require(supported_token_info.mint == *accounts.token.key, "Token is not supported")?;
 
     user_info.support_bots = support_bot;
     user_info.in_game = true;
 
-    new_game(accounts, program_id, gamer, token, value)?;
+    let convert_value = chainlink_solana::latest_round_data(
+        accounts.chainlink_program.clone(),
+        accounts.feed_account.clone(),
+    )?;
+
+    if &spl_associated_token_account::get_associated_token_address(
+        accounts.payer.key,
+        accounts.token.key,
+    ) != accounts.source.key
+    {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if &spl_associated_token_account::get_associated_token_address(&game_pda, accounts.token.key)
+        != accounts.destination.key
+    {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if accounts.destination.owner != accounts.token_program.key {
+        invoke(
+            &spl_associated_token_account::create_associated_token_account(
+                accounts.payer.key,
+                accounts.game.key,
+                accounts.token.key,
+            ),
+            &[
+                accounts.payer.clone(),
+                accounts.destination.clone(),
+                accounts.game.clone(),
+                accounts.token.clone(),
+                accounts.system_program.clone(),
+                accounts.token_program.clone(),
+                accounts.rent_info.clone(),
+                accounts.token_assoc.clone(),
+            ],
+        )?;
+    }
+
+    invoke(
+        &spl_token::instruction::transfer(
+            accounts.token_program.key,
+            accounts.source.key,
+            accounts.destination.key,
+            accounts.payer.key,
+            &[],
+            value,
+        )?,
+        &[
+            accounts.source.clone(),
+            accounts.destination.clone(),
+            accounts.payer.clone(),
+            accounts.token_program.clone(),
+        ],
+    )?;
+
+    new_game(accounts, program_id, value, convert_value.answer)?;
 
     Ok(())
 }
@@ -84,23 +141,22 @@ pub fn bet(
 pub fn new_game(
     accounts: Accounts,
     program_id: &Pubkey,
-    user: Pubkey,
-    token: Pubkey,
     amount: u64,
+    convert_amount: i128,
 ) -> ProgramResult {
     let clock = Clock::get()?;
 
     let rent = &Rent::from_account_info(accounts.rent_info)?;
 
     let (game_pda, game_bump_seed) =
-        Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
+        Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
 
     if accounts.game.key != &game_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
     if accounts.game.owner != program_id {
-        let size: u64 = 32 + 32 + 32 + 32 + 8 + 8 + 8 + 1;
+        let size: u64 = 32 + 32 + 32 + 32 + 8 + 8 + 16 + 16 + 8 + 1;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
@@ -119,23 +175,25 @@ pub fn new_game(
         invoke_signed(
             &system_instruction::allocate(&game_pda, size),
             &[accounts.game.clone(), accounts.system_program.clone()],
-            &[&[GAME, &user.to_bytes(), &[game_bump_seed]]],
+            &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump_seed]]],
         )?;
 
         invoke_signed(
             &system_instruction::assign(&game_pda, program_id),
             &[accounts.game.clone(), accounts.system_program.clone()],
-            &[&[GAME, &user.to_bytes(), &[game_bump_seed]]],
+            &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump_seed]]],
         )?;
     }
 
     let game_info = Game {
-        gamer1: user,
+        gamer1: *accounts.payer.key,
         gamer2: Pubkey::default(),
-        token1: token,
+        token1: *accounts.token.key,
         token2: Pubkey::default(),
         amount1: amount,
         amount2: 0,
+        convert_amount1: convert_amount,
+        convert_amount2: 0,
         latest_bet: clock.unix_timestamp as u64,
         closed: false,
     };
@@ -153,7 +211,13 @@ pub struct Accounts<'a, 'b> {
     pub supported_token: &'a AccountInfo<'b>,
     pub user: &'a AccountInfo<'b>,
     pub game: &'a AccountInfo<'b>,
-    pub bot: &'a AccountInfo<'b>,
+    pub chainlink_program: &'a AccountInfo<'b>,
+    pub feed_account: &'a AccountInfo<'b>,
+    pub source: &'a AccountInfo<'b>,
+    pub destination: &'a AccountInfo<'b>,
+    pub token_program: &'a AccountInfo<'b>,
+    pub token: &'a AccountInfo<'b>,
+    pub token_assoc: &'a AccountInfo<'b>,
 }
 
 impl<'a, 'b> Accounts<'a, 'b> {
@@ -169,7 +233,13 @@ impl<'a, 'b> Accounts<'a, 'b> {
             supported_token: next_account_info(acc_iter)?,
             user: next_account_info(acc_iter)?,
             game: next_account_info(acc_iter)?,
-            bot: next_account_info(acc_iter)?,
+            chainlink_program: next_account_info(acc_iter)?,
+            feed_account: next_account_info(acc_iter)?,
+            source: next_account_info(acc_iter)?,
+            destination: next_account_info(acc_iter)?,
+            token_program: next_account_info(acc_iter)?,
+            token: next_account_info(acc_iter)?,
+            token_assoc: next_account_info(acc_iter)?,
         })
     }
 }

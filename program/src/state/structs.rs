@@ -9,6 +9,8 @@ pub struct Game {
     pub token2: Pubkey,
     pub amount1: u64,
     pub amount2: u64,
+    pub convert_amount1: i128,
+    pub convert_amount2: i128,
     pub latest_bet: u64,
     pub closed: bool,
 }
