@@ -21,7 +21,7 @@ pub fn close(
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 
-    let clock = Clock::get()?;
+    let _clock = Clock::get()?;
 
     if *accounts.token_program.key != spl_token::id() {
         return Err(ContractError::InvalidInstructionData.into());
@@ -86,7 +86,7 @@ pub fn close(
     user2_info.serialize(&mut &mut accounts.user2.data.borrow_mut()[..])?;
 
     let game_fee1 = game_info.amount1 * betting_info.global_fee / 100;
-    let game_fee2 = game_info.amount2 * betting_info.global_fee / 100;
+    let _game_fee2 = game_info.amount2 * betting_info.global_fee / 100;
 
     let looser_address = if winner_address == game_info.gamer1 {
         game_info.gamer2
@@ -204,14 +204,14 @@ pub fn close(
 
 fn internal_transfer(
     accounts: &Accounts,
-    program_id: &Pubkey,
+    _program_id: &Pubkey,
     winner_address: Pubkey,
-    looser_address: Pubkey,
+    _looser_address: Pubkey,
     token_address: Pubkey,
     value: u64,
     fee: u64,
-    user_info: User,
-    user2_info: User,
+    _user_info: User,
+    _user2_info: User,
     game_bump: u8,
     user: Pubkey,
     game_info: Game,

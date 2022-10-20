@@ -1,7 +1,7 @@
 use crate::consts::{BETTING, GAME, USER, WHITELIST};
 use crate::error::ContractError;
 use crate::processor::require;
-use crate::state::helpers::{get_betting_info, get_game_info, get_supported_token_info, get_user_info};
+use crate::state::helpers::{get_betting_info, get_game_info, get_user_info};
 use borsh::BorshSerialize;
 use solana_program::account_info::{next_account_info, AccountInfo};
 use solana_program::entrypoint::ProgramResult;
