@@ -35,7 +35,7 @@ pub fn registration(
     let len = password.len() as u64;
 
     if accounts.user.owner != program_id {
-        let size: u64 = 32 + 32 + len + 1 + 1 + 1 + 8;
+        let size: u64 = 32 + 32 + (len * 2) + 1 + 1 + 1 + 8;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
@@ -54,13 +54,13 @@ pub fn registration(
         invoke_signed(
             &system_instruction::allocate(&data_address, size),
             &[accounts.user.clone(), accounts.system_program.clone()],
-            &[&[USER, &referrer.to_bytes(), &[data_address_bump]]],
+            &[&[USER, &accounts.payer.key.to_bytes(), &[data_address_bump]]],
         )?;
 
         invoke_signed(
             &system_instruction::assign(&data_address, program_id),
             &[accounts.user.clone(), accounts.system_program.clone()],
-            &[&[USER, &referrer.to_bytes(), &[data_address_bump]]],
+            &[&[USER, &accounts.payer.key.to_bytes(), &[data_address_bump]]],
         )?;
     }
 
