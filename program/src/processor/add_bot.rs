@@ -30,7 +30,7 @@ pub fn add_bot(accounts: &[AccountInfo], program_id: &Pubkey, bot: Pubkey) -> Pr
     }
 
     if accounts.bot.owner != program_id {
-        let size: u64 = 32 + 32 + 1 + 1 + 1 + 8;
+        let size: u64 = 32 + 32 + 1 + 10 + 1 + 1 + 8;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
