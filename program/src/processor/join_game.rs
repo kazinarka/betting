@@ -36,8 +36,10 @@ pub fn bet_with_join(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (token_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token.key.to_bytes()], program_id);
+    let (token_pda, _) = Pubkey::find_program_address(
+        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        program_id,
+    );
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -182,8 +184,7 @@ pub fn join_game(
 ) -> ProgramResult {
     let clock = Clock::get()?;
 
-    let (game_pda, _) =
-        Pubkey::find_program_address(&[GAME, &user_master.to_bytes()], program_id);
+    let (game_pda, _) = Pubkey::find_program_address(&[GAME, &user_master.to_bytes()], program_id);
 
     if accounts.pda.key != &game_pda {
         return Err(ContractError::InvalidInstructionData.into());

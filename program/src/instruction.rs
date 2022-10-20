@@ -82,5 +82,5 @@ pub enum BettingInstruction {
         winner_address: Pubkey,
         #[allow(dead_code)]
         type_price: u64,
-    }
+    },
 }

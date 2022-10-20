@@ -14,6 +14,7 @@ use crate::instruction::BettingInstruction;
 use crate::processor::add_bot::add_bot;
 use crate::processor::add_supported_token::add_supported_token;
 use crate::processor::bet::bet;
+use crate::processor::close_game::close;
 use crate::processor::forced_close_game::forced_close;
 use crate::processor::init::init;
 use crate::processor::join_game::bet_with_join;
@@ -30,7 +31,6 @@ use solana_program::msg;
 use solana_program::program_error::{PrintProgramError, ProgramError};
 use solana_program::pubkey::Pubkey;
 use spl_token::error::TokenError;
-use crate::processor::close_game::close;
 
 /// Program state handler
 pub struct Processor {}
@@ -96,7 +96,11 @@ impl Processor {
             BettingInstruction::ManuallyClose { user } => {
                 manually_close(accounts, program_id, user)?
             }
-            BettingInstruction::Close { user, winner_address, type_price } => close(accounts, program_id, user, winner_address, type_price)?,
+            BettingInstruction::Close {
+                user,
+                winner_address,
+                type_price,
+            } => close(accounts, program_id, user, winner_address, type_price)?,
         };
 
         Ok(())

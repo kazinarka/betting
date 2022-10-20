@@ -1,5 +1,6 @@
 use crate::consts::USER;
 use crate::error::ContractError;
+use crate::processor::require;
 use crate::state::structs::User;
 use borsh::BorshSerialize;
 use solana_program::account_info::{next_account_info, AccountInfo};
@@ -10,7 +11,6 @@ use solana_program::pubkey::Pubkey;
 use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
-use crate::processor::require;
 
 pub fn registration(
     accounts: &[AccountInfo],
@@ -29,7 +29,10 @@ pub fn registration(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    require(&referrer != accounts.payer.key, "refferer must not be equal to user wallet")?;
+    require(
+        &referrer != accounts.payer.key,
+        "refferer must not be equal to user wallet",
+    )?;
 
     let password = password.into_bytes();
     let len = password.len() as u64;

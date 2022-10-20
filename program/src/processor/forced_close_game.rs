@@ -32,8 +32,7 @@ pub fn forced_close(accounts: &[AccountInfo], program_id: &Pubkey, user: Pubkey)
         return Err(ContractError::UnauthorisedAccess.into());
     }
 
-    let (game_pda, game_bump) =
-        Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
+    let (game_pda, game_bump) = Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -61,8 +60,10 @@ pub fn forced_close(accounts: &[AccountInfo], program_id: &Pubkey, user: Pubkey)
     user_info.in_game = false;
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
-    let (token_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token.key.to_bytes()], program_id);
+    let (token_pda, _) = Pubkey::find_program_address(
+        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        program_id,
+    );
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -74,10 +75,8 @@ pub fn forced_close(accounts: &[AccountInfo], program_id: &Pubkey, user: Pubkey)
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    if &spl_associated_token_account::get_associated_token_address(
-        &user,
-        accounts.token.key,
-    ) != accounts.destination.key
+    if &spl_associated_token_account::get_associated_token_address(&user, accounts.token.key)
+        != accounts.destination.key
     {
         return Err(ContractError::InvalidInstructionData.into());
     }

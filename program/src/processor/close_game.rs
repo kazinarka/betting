@@ -96,15 +96,19 @@ pub fn close(
 
     game_info.serialize(&mut &mut accounts.game.data.borrow_mut()[..])?;
 
-    let (token_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token.key.to_bytes()], program_id);
+    let (token_pda, _) = Pubkey::find_program_address(
+        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        program_id,
+    );
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (token1_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token1.key.to_bytes()], program_id);
+    let (token1_pda, _) = Pubkey::find_program_address(
+        &[WHITELIST, &accounts.supported_token1.key.to_bytes()],
+        program_id,
+    );
 
     if *accounts.supported_token1.key != token1_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -289,8 +293,6 @@ fn internal_transfer(
 
         return Ok(());
     }
-
-
 
     Ok(())
 }

@@ -38,10 +38,10 @@ set_transaction_fee:
 	cd client; cargo run -- set_transaction_fee -e dev -s /home/ideasoft/.config/solana/id.json -f 10
 
 add_supported_token:
-	cd client; cargo run -- add_supported_token -e dev -s /home/ideasoft/.config/solana/id.json
+	cd client; cargo run -- add_supported_token -e dev -s /home/ideasoft/.config/solana/id.json -t HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6
 
 registration:
-	cd client; cargo run -- registration -e dev -s /home/ideasoft/.config/solana/id.json
+	cd client; cargo run -- registration -e dev -s /home/ideasoft/.config/solana/id.json -r HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6 -p password
 
 add_bot:
-	cd client; cargo run -- add_bot -e dev -s /home/ideasoft/.config/solana/id.json
+	cd client; cargo run -- add_bot -e dev -s /home/ideasoft/.config/solana/id.json -b E5L2TjtD8nVjNxoEwgizoM4wsdrAtXg52VCnFF4BG2gg

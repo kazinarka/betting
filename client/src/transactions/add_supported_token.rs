@@ -1,5 +1,5 @@
 use crate::consts::{PROGRAM_ID, RENT};
-use crate::structs::{BettingInstruction};
+use crate::structs::BettingInstruction;
 use clap::ArgMatches;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -26,7 +26,9 @@ pub fn add_supported_token(matches: &ArgMatches) {
     let wallet_keypair = read_keypair_file(wallet_path).expect("Can't open file-wallet");
     let wallet_pubkey = wallet_keypair.pubkey();
 
-    let token = "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6"
+    let token = matches
+        .value_of("token")
+        .unwrap()
         .parse::<Pubkey>()
         .unwrap();
 

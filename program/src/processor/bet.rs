@@ -37,8 +37,10 @@ pub fn bet(
         return Err(ContractError::InvalidInstructionData.into());
     }
 
-    let (token_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token.key.to_bytes()], program_id);
+    let (token_pda, _) = Pubkey::find_program_address(
+        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        program_id,
+    );
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());

@@ -1,5 +1,5 @@
 use crate::consts::{PROGRAM_ID, RENT};
-use crate::structs::{BettingInstruction};
+use crate::structs::BettingInstruction;
 use clap::ArgMatches;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -28,7 +28,9 @@ pub fn init(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
-    let token = "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6"
+    let token = matches
+        .value_of("s_token")
+        .unwrap()
         .parse::<Pubkey>()
         .unwrap();
 
@@ -37,7 +39,9 @@ pub fn init(matches: &ArgMatches) {
 
     println!("Whitelist {:?}", supported_token_data);
 
-    let manager = "E5L2TjtD8nVjNxoEwgizoM4wsdrAtXg52VCnFF4BG2gg"
+    let manager = matches
+        .value_of("manager")
+        .unwrap()
         .parse::<Pubkey>()
         .unwrap();
 

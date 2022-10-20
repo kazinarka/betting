@@ -1,5 +1,5 @@
 use crate::consts::{PROGRAM_ID, RENT};
-use crate::structs::{BettingInstruction};
+use crate::structs::BettingInstruction;
 use clap::ArgMatches;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -26,17 +26,14 @@ pub fn add_bot(matches: &ArgMatches) {
     let wallet_keypair = read_keypair_file(wallet_path).expect("Can't open file-wallet");
     let wallet_pubkey = wallet_keypair.pubkey();
 
-    let bot = "8Nx3hKSE4ZQdLecXRhB4CDSU4PD8PTxzAeKGoxZSmNvV"
-        .parse::<Pubkey>()
-        .unwrap();
+    let bot = matches.value_of("bot").unwrap().parse::<Pubkey>().unwrap();
 
-    let (user_pda, _) = Pubkey::find_program_address(&["user".as_bytes(), &bot.to_bytes()], &program_id);
+    let (user_pda, _) =
+        Pubkey::find_program_address(&["user".as_bytes(), &bot.to_bytes()], &program_id);
 
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::AddBot {
-            bot,
-        },
+        &BettingInstruction::AddBot { bot },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),

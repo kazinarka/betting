@@ -1,5 +1,5 @@
 use crate::consts::{PROGRAM_ID, RENT};
-use crate::structs::{BettingInstruction};
+use crate::structs::BettingInstruction;
 use clap::ArgMatches;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -30,17 +30,22 @@ pub fn registration(matches: &ArgMatches) {
         .parse::<Pubkey>()
         .unwrap();
 
-    let referrer = "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6"
+    let referrer = matches
+        .value_of("referrer")
+        .unwrap()
         .parse::<Pubkey>()
         .unwrap();
 
-    let (user_pda, _) = Pubkey::find_program_address(&["user".as_bytes(), &user.to_bytes()], &program_id);
+    let password = matches.value_of("password").unwrap();
+
+    let (user_pda, _) =
+        Pubkey::find_program_address(&["user".as_bytes(), &user.to_bytes()], &program_id);
 
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
         &BettingInstruction::Registration {
             referrer,
-            password: "passwordasdfhgjgfdsdfghjgfdghdjfkjthrsrshdtjv,jhsrtawsdtmjhtaweshtmjhytr".to_string()
+            password: password.to_string(),
         },
         vec![
             AccountMeta::new(wallet_pubkey, true),

@@ -2,14 +2,17 @@ mod consts;
 mod structs;
 mod transactions;
 
-use crate::transactions::init::{init};
+use crate::transactions::add_bot::add_bot;
+use crate::transactions::add_supported_token::add_supported_token;
+use crate::transactions::init::init;
+use crate::transactions::registration::registration;
+use crate::transactions::setters::{
+    lock_bets, new_delay, new_manager, set_admin_fee, set_global_fee, set_transaction_fee,
+    set_winner_fee, unlock_bets,
+};
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, SubCommand,
 };
-use crate::transactions::add_bot::add_bot;
-use crate::transactions::add_supported_token::add_supported_token;
-use crate::transactions::registration::registration;
-use crate::transactions::setters::{lock_bets, new_delay, new_manager, set_admin_fee, set_global_fee, set_transaction_fee, set_winner_fee, unlock_bets};
 
 fn main() {
     let matches = app_from_crate!()
@@ -237,6 +240,13 @@ fn main() {
                         .long("env")
                         .required(false)
                         .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("token")
+                        .short("t")
+                        .long("token")
+                        .required(false)
+                        .takes_value(true),
                 ),
         )
         .subcommand(
@@ -254,6 +264,20 @@ fn main() {
                         .long("env")
                         .required(false)
                         .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("referrer")
+                        .short("r")
+                        .long("referrer")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("password")
+                        .short("p")
+                        .long("password")
+                        .required(false)
+                        .takes_value(true),
                 ),
         )
         .subcommand(
@@ -269,6 +293,13 @@ fn main() {
                     Arg::with_name("env")
                         .short("e")
                         .long("env")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("bot")
+                        .short("b")
+                        .long("bot")
                         .required(false)
                         .takes_value(true),
                 ),

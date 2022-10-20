@@ -36,8 +36,7 @@ pub fn manually_close(
 
     let betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    let (game_pda, game_bump) =
-        Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
+    let (game_pda, game_bump) = Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -73,8 +72,10 @@ pub fn manually_close(
     user_info.in_game = false;
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
-    let (token_pda, _) =
-        Pubkey::find_program_address(&[WHITELIST, &accounts.supported_token.key.to_bytes()], program_id);
+    let (token_pda, _) = Pubkey::find_program_address(
+        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        program_id,
+    );
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());

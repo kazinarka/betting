@@ -1,5 +1,5 @@
-use crate::consts::{PROGRAM_ID, RENT};
-use crate::structs::{BettingInstruction};
+use crate::consts::PROGRAM_ID;
+use crate::structs::BettingInstruction;
 use clap::ArgMatches;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::commitment_config::CommitmentConfig;
@@ -28,11 +28,11 @@ pub fn new_delay(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
+    let new_delay = matches.value_of("new_delay").unwrap().parse::<u64>().unwrap();
+
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::ChangeCloseDelay {
-            new_delay: 10,
-        },
+        &BettingInstruction::ChangeCloseDelay { new_delay },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
@@ -123,15 +123,15 @@ pub fn new_manager(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
-    let manager = "E5L2TjtD8nVjNxoEwgizoM4wsdrAtXg52VCnFF4BG2gg"
+    let manager = matches
+        .value_of("manager")
+        .unwrap()
         .parse::<Pubkey>()
         .unwrap();
 
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::NewManager {
-            manager,
-        },
+        &BettingInstruction::NewManager { manager },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
@@ -160,11 +160,11 @@ pub fn set_global_fee(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
+    let fee = matches.value_of("fee").unwrap().parse::<u64>().unwrap();
+
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::SetGlobalFee {
-            fee: 10,
-        },
+        &BettingInstruction::SetGlobalFee { fee },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
@@ -193,11 +193,11 @@ pub fn set_admin_fee(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
+    let fee = matches.value_of("fee").unwrap().parse::<u64>().unwrap();
+
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::SetAdminFee {
-            fee: 10,
-        },
+        &BettingInstruction::SetAdminFee { fee },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
@@ -226,11 +226,11 @@ pub fn set_transaction_fee(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
+    let fee = matches.value_of("fee").unwrap().parse::<u64>().unwrap();
+
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::SetTransactionFee {
-            fee: 10,
-        },
+        &BettingInstruction::SetTransactionFee { fee },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
@@ -259,11 +259,11 @@ pub fn set_winner_fee(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
+    let fee = matches.value_of("fee").unwrap().parse::<u64>().unwrap();
+
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
-        &BettingInstruction::SetWinnerFee {
-            fee: 10,
-        },
+        &BettingInstruction::SetWinnerFee { fee },
         vec![
             AccountMeta::new(wallet_pubkey, true),
             AccountMeta::new(system_program::id(), false),
