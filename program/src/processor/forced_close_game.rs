@@ -61,7 +61,7 @@ pub fn forced_close(accounts: &[AccountInfo], program_id: &Pubkey, user: Pubkey)
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     let (token_pda, _) = Pubkey::find_program_address(
-        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        &[WHITELIST, &accounts.token.key.to_bytes()],
         program_id,
     );
 

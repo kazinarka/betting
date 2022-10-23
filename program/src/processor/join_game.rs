@@ -8,6 +8,7 @@ use borsh::BorshSerialize;
 use solana_program::account_info::{next_account_info, AccountInfo};
 use solana_program::clock::Clock;
 use solana_program::entrypoint::ProgramResult;
+use solana_program::msg;
 use solana_program::program::invoke;
 use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
@@ -37,7 +38,7 @@ pub fn bet_with_join(
     }
 
     let (token_pda, _) = Pubkey::find_program_address(
-        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        &[WHITELIST, &accounts.token.key.to_bytes()],
         program_id,
     );
 
@@ -60,7 +61,7 @@ pub fn bet_with_join(
     }
 
     let (game_pda, _) =
-        Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
+        Pubkey::find_program_address(&[GAME, &user_master.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -93,9 +94,9 @@ pub fn bet_with_join(
     user_info.in_game = true;
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
-    let game_info = get_game_info(&accounts.pda.data.borrow())?;
+    let game_info = get_game_info(&accounts.game.data.borrow())?;
 
-    if (game_info.gamer2 == Pubkey::default()) && !game_info.closed {
+    if !game_info.closed {
         if !support_bot {
             require(!user_master_info.is_bot, "User doesn't support bots")?;
         }
@@ -186,7 +187,7 @@ pub fn join_game(
 
     let (game_pda, _) = Pubkey::find_program_address(&[GAME, &user_master.to_bytes()], program_id);
 
-    if accounts.pda.key != &game_pda {
+    if accounts.game.key != &game_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
 

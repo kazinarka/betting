@@ -38,7 +38,7 @@ pub fn bet(
     }
 
     let (token_pda, _) = Pubkey::find_program_address(
-        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        &[WHITELIST, &accounts.token.key.to_bytes()],
         program_id,
     );
 

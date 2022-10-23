@@ -13,6 +13,10 @@ use crate::transactions::setters::{
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, SubCommand,
 };
+use crate::transactions::forced_close::forced_close;
+use crate::transactions::join_game::join_game;
+use crate::transactions::manually_close::manually_close;
+use crate::transactions::new_game::new_game;
 
 fn main() {
     let matches = app_from_crate!()
@@ -304,6 +308,102 @@ fn main() {
                         .takes_value(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("new_game")
+                .arg(
+                    Arg::with_name("sign")
+                        .short("s")
+                        .long("sign")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("env")
+                        .short("e")
+                        .long("env")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("value")
+                        .short("v")
+                        .long("value")
+                        .required(false)
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("forced_close")
+                .arg(
+                    Arg::with_name("sign")
+                        .short("s")
+                        .long("sign")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("env")
+                        .short("e")
+                        .long("env")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("user")
+                        .short("u")
+                        .long("user")
+                        .required(false)
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("manually_close")
+                .arg(
+                    Arg::with_name("sign")
+                        .short("s")
+                        .long("sign")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("env")
+                        .short("e")
+                        .long("env")
+                        .required(false)
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("join_game")
+                .arg(
+                    Arg::with_name("sign")
+                        .short("s")
+                        .long("sign")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("env")
+                        .short("e")
+                        .long("env")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("master")
+                        .short("m")
+                        .long("master")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("value")
+                        .short("v")
+                        .long("value")
+                        .required(false)
+                        .takes_value(true),
+                ),
+        )
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
@@ -352,5 +452,21 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("add_bot") {
         add_bot(matches);
+    }
+
+    if let Some(matches) = matches.subcommand_matches("new_game") {
+        new_game(matches);
+    }
+
+    if let Some(matches) = matches.subcommand_matches("forced_close") {
+        forced_close(matches);
+    }
+
+    if let Some(matches) = matches.subcommand_matches("manually_close") {
+        manually_close(matches);
+    }
+
+    if let Some(matches) = matches.subcommand_matches("join_game") {
+        join_game(matches);
     }
 }

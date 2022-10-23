@@ -14,7 +14,6 @@ use solana_program::sysvar::Sysvar;
 pub fn manually_close(
     accounts: &[AccountInfo],
     program_id: &Pubkey,
-    user: Pubkey,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 
@@ -36,7 +35,7 @@ pub fn manually_close(
 
     let betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    let (game_pda, game_bump) = Pubkey::find_program_address(&[GAME, &user.to_bytes()], program_id);
+    let (game_pda, game_bump) = Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -61,7 +60,7 @@ pub fn manually_close(
     game_info.closed = true;
     game_info.serialize(&mut &mut accounts.game.data.borrow_mut()[..])?;
 
-    let (user_pda, _) = Pubkey::find_program_address(&[USER, &user.to_bytes()], program_id);
+    let (user_pda, _) = Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.user.key != user_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -73,7 +72,7 @@ pub fn manually_close(
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     let (token_pda, _) = Pubkey::find_program_address(
-        &[WHITELIST, &accounts.supported_token.key.to_bytes()],
+        &[WHITELIST, &accounts.token.key.to_bytes()],
         program_id,
     );
 
@@ -140,7 +139,7 @@ pub fn manually_close(
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
-        &[&[GAME, &user.to_bytes(), &[game_bump]]],
+        &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump]]],
     )?;
 
     if accounts.destination.owner != accounts.token_program.key {
@@ -178,7 +177,7 @@ pub fn manually_close(
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
-        &[&[GAME, &user.to_bytes(), &[game_bump]]],
+        &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump]]],
     )?;
 
     invoke_signed(
@@ -195,7 +194,7 @@ pub fn manually_close(
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
-        &[&[GAME, &user.to_bytes(), &[game_bump]]],
+        &[&[GAME, &accounts.payer.key.to_bytes(), &[game_bump]]],
     )?;
 
     Ok(())

@@ -7,6 +7,12 @@ use thiserror::Error;
 pub enum ContractError {
     #[error("An instruction's data contents was invalid")]
     InvalidInstructionData,
+    #[error("An instruction's data contents was invalid")]
+    InvalidInstructionData1,
+    #[error("An instruction's data contents was invalid")]
+    InvalidInstructionData2,
+    #[error("An instruction's data contents was invalid")]
+    InvalidInstructionData3,
     #[error("The claimer can't submit this claim")]
     CannotSubmitThisClaim,
     #[error("Only admin can call this instruction")]

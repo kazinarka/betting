@@ -71,10 +71,7 @@ pub enum BettingInstruction {
         #[allow(dead_code)]
         user: Pubkey,
     },
-    ManuallyClose {
-        #[allow(dead_code)]
-        user: Pubkey,
-    },
+    ManuallyClose,
     Close {
         #[allow(dead_code)]
         user: Pubkey,

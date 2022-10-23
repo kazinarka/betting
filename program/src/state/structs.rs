@@ -36,7 +36,6 @@ pub struct SupportedToken {
 pub struct User {
     pub address: Pubkey,
     pub referrer: Pubkey,
-    pub password: Vec<u8>,
     pub in_game: bool,
     pub support_bots: bool,
     pub is_bot: bool,

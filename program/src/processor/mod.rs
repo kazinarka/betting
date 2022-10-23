@@ -93,8 +93,8 @@ impl Processor {
                 user_master,
             } => bet_with_join(accounts, program_id, user_master, value, support_bot)?,
             BettingInstruction::ForcedClose { user } => forced_close(accounts, program_id, user)?,
-            BettingInstruction::ManuallyClose { user } => {
-                manually_close(accounts, program_id, user)?
+            BettingInstruction::ManuallyClose => {
+                manually_close(accounts, program_id)?
             }
             BettingInstruction::Close {
                 user,

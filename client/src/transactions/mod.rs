@@ -3,3 +3,7 @@ pub mod add_supported_token;
 pub mod init;
 pub mod registration;
 pub mod setters;
+pub mod new_game;
+pub mod forced_close;
+pub mod manually_close;
+pub mod join_game;

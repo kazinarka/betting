@@ -34,11 +34,8 @@ pub fn registration(
         "refferer must not be equal to user wallet",
     )?;
 
-    let password = password.into_bytes();
-    let len = password.len() as u64;
-
     if accounts.user.owner != program_id {
-        let size: u64 = 32 + 32 + (len * 2) + 1 + 1 + 1 + 8;
+        let size: u64 = 32 + 32 + 1 + 1 + 1 + 8;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
@@ -70,7 +67,6 @@ pub fn registration(
     let user = User {
         address: *accounts.payer.key,
         referrer,
-        password,
         in_game: false,
         support_bots: false,
         is_bot: false,
