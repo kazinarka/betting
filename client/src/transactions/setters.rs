@@ -28,7 +28,11 @@ pub fn new_delay(matches: &ArgMatches) {
 
     let (betting_pda, _) = Pubkey::find_program_address(&["betting".as_bytes()], &program_id);
 
-    let new_delay = matches.value_of("new_delay").unwrap().parse::<u64>().unwrap();
+    let new_delay = matches
+        .value_of("new_delay")
+        .unwrap()
+        .parse::<u64>()
+        .unwrap();
 
     let instructions = vec![Instruction::new_with_borsh(
         program_id,

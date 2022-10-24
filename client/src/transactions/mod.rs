@@ -1,9 +1,9 @@
 pub mod add_bot;
 pub mod add_supported_token;
+pub mod forced_close;
 pub mod init;
+pub mod join_game;
+pub mod manually_close;
+pub mod new_game;
 pub mod registration;
 pub mod setters;
-pub mod new_game;
-pub mod forced_close;
-pub mod manually_close;
-pub mod join_game;

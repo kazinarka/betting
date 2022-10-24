@@ -30,8 +30,16 @@ pub fn manually_close(matches: &ArgMatches) {
 
     println!("Betting {:?}", betting_pda);
 
-    let (supported_token_data, _) =
-        Pubkey::find_program_address(&["whitelist".as_bytes(), &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1".parse::<Pubkey>().unwrap().to_bytes()], &program_id);
+    let (supported_token_data, _) = Pubkey::find_program_address(
+        &[
+            "whitelist".as_bytes(),
+            &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+                .parse::<Pubkey>()
+                .unwrap()
+                .to_bytes(),
+        ],
+        &program_id,
+    );
 
     let (user_data, _) =
         Pubkey::find_program_address(&["user".as_bytes(), &wallet_pubkey.to_bytes()], &program_id);
@@ -45,17 +53,34 @@ pub fn manually_close(matches: &ArgMatches) {
 
     println!("Game {:?}", game_data);
 
-    let source = spl_associated_token_account::get_associated_token_address(&game_data, &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1".parse::<Pubkey>().unwrap());
+    let source = spl_associated_token_account::get_associated_token_address(
+        &game_data,
+        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+            .parse::<Pubkey>()
+            .unwrap(),
+    );
 
-    let destination = spl_associated_token_account::get_associated_token_address(&wallet_pubkey, &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1".parse::<Pubkey>().unwrap());
+    let destination = spl_associated_token_account::get_associated_token_address(
+        &wallet_pubkey,
+        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+            .parse::<Pubkey>()
+            .unwrap(),
+    );
 
     println!("Source {:?}", source);
 
     println!("Destination {:?}", destination);
 
-    let owner = "BYX8A4T46wfMbyVKty3z8diuLmJydPDrNzwMwKMFz87P".parse::<Pubkey>().unwrap();
+    let owner = "BYX8A4T46wfMbyVKty3z8diuLmJydPDrNzwMwKMFz87P"
+        .parse::<Pubkey>()
+        .unwrap();
 
-    let owner_assoc = spl_associated_token_account::get_associated_token_address(&owner, &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1".parse::<Pubkey>().unwrap());
+    let owner_assoc = spl_associated_token_account::get_associated_token_address(
+        &owner,
+        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+            .parse::<Pubkey>()
+            .unwrap(),
+    );
 
     println!("Owner {:?}", owner);
 
@@ -77,8 +102,18 @@ pub fn manually_close(matches: &ArgMatches) {
             AccountMeta::new(owner, false),
             AccountMeta::new(owner_assoc, false),
             AccountMeta::new_readonly(spl_token::id(), false),
-            AccountMeta::new_readonly("8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1".parse::<Pubkey>().unwrap(), false),
-            AccountMeta::new_readonly("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL".parse::<Pubkey>().unwrap(), false),
+            AccountMeta::new_readonly(
+                "8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
         ],
     )];
     let mut tx = Transaction::new_with_payer(&instructions, Some(&wallet_pubkey));

@@ -4,7 +4,11 @@ mod transactions;
 
 use crate::transactions::add_bot::add_bot;
 use crate::transactions::add_supported_token::add_supported_token;
+use crate::transactions::forced_close::forced_close;
 use crate::transactions::init::init;
+use crate::transactions::join_game::join_game;
+use crate::transactions::manually_close::manually_close;
+use crate::transactions::new_game::new_game;
 use crate::transactions::registration::registration;
 use crate::transactions::setters::{
     lock_bets, new_delay, new_manager, set_admin_fee, set_global_fee, set_transaction_fee,
@@ -13,10 +17,6 @@ use crate::transactions::setters::{
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, SubCommand,
 };
-use crate::transactions::forced_close::forced_close;
-use crate::transactions::join_game::join_game;
-use crate::transactions::manually_close::manually_close;
-use crate::transactions::new_game::new_game;
 
 fn main() {
     let matches = app_from_crate!()

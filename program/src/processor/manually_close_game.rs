@@ -11,10 +11,7 @@ use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
 use solana_program::sysvar::Sysvar;
 
-pub fn manually_close(
-    accounts: &[AccountInfo],
-    program_id: &Pubkey,
-) -> ProgramResult {
+pub fn manually_close(accounts: &[AccountInfo], program_id: &Pubkey) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 
     let clock = Clock::get()?;
@@ -35,7 +32,8 @@ pub fn manually_close(
 
     let betting_info = get_betting_info(&accounts.pda.data.borrow())?;
 
-    let (game_pda, game_bump) = Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
+    let (game_pda, game_bump) =
+        Pubkey::find_program_address(&[GAME, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.game.key != game_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -60,7 +58,8 @@ pub fn manually_close(
     game_info.closed = true;
     game_info.serialize(&mut &mut accounts.game.data.borrow_mut()[..])?;
 
-    let (user_pda, _) = Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
+    let (user_pda, _) =
+        Pubkey::find_program_address(&[USER, &accounts.payer.key.to_bytes()], program_id);
 
     if *accounts.user.key != user_pda {
         return Err(ContractError::InvalidInstructionData.into());
@@ -71,10 +70,8 @@ pub fn manually_close(
     user_info.in_game = false;
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
-    let (token_pda, _) = Pubkey::find_program_address(
-        &[WHITELIST, &accounts.token.key.to_bytes()],
-        program_id,
-    );
+    let (token_pda, _) =
+        Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
 
     if *accounts.supported_token.key != token_pda {
         return Err(ContractError::InvalidInstructionData.into());
