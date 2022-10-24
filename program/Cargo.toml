@@ -1,5 +1,5 @@
 [package]
-name = "betting10"
+name = "betting_final"
 version = "0.0.1"
 edition = "2018"
 
@@ -27,5 +27,5 @@ tokio = { version = "1.6", features = ["macros"] }
 solana-client = "1.9.0"
 
 [lib]
-name = "betting10"
+name = "betting_final"
 crate-type = ["cdylib", "lib"]

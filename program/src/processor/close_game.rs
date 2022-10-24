@@ -493,7 +493,7 @@ fn internal_transfer(
                 invoke(
                     &spl_associated_token_account::create_associated_token_account(
                         accounts.payer.key,
-                        &accounts_winner_referrer_assoc.key,
+                        &accounts_winner_referrer.key,
                         accounts_token.key,
                     ),
                     &[
@@ -569,7 +569,7 @@ fn internal_transfer(
                 invoke(
                     &spl_associated_token_account::create_associated_token_account(
                         accounts.payer.key,
-                        &accounts_winner_referrer_assoc.key,
+                        &accounts_winner_referrer.key,
                         accounts_token.key,
                     ),
                     &[

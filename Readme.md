@@ -13,7 +13,7 @@ change package and lib names to "betting-contract" (or another)
 
 > solana-keygen new --outfile id.json
 
-> solana-keygen pubkey id.json
+> `solana-keygen pubkey id.json`
 
 - fund admin address 10 SOL
 
@@ -164,6 +164,10 @@ NOTE: only for development, it will reduce close delay from 300 sec to 10 sec
 ## Tests completed!
 
 # Mainnet
+
+- Makefile
+
+remove -e dev from commands
 
 - program/Cargo.toml
 

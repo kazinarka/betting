@@ -35,7 +35,7 @@ pub fn forced_close(matches: &ArgMatches) {
     let (supported_token_data, _) = Pubkey::find_program_address(
         &[
             "whitelist".as_bytes(),
-            &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+            &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -57,14 +57,14 @@ pub fn forced_close(matches: &ArgMatches) {
 
     let source = spl_associated_token_account::get_associated_token_address(
         &game_data,
-        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination = spl_associated_token_account::get_associated_token_address(
         &user,
-        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
@@ -89,7 +89,7 @@ pub fn forced_close(matches: &ArgMatches) {
             AccountMeta::new(destination, false),
             AccountMeta::new_readonly(spl_token::id(), false),
             AccountMeta::new_readonly(
-                "8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+                "CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
                     .parse::<Pubkey>()
                     .unwrap(),
                 false,

@@ -16,7 +16,7 @@ pub fn registration(
     accounts: &[AccountInfo],
     program_id: &Pubkey,
     referrer: Pubkey,
-    password: String,
+    _password: String,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 

@@ -17,6 +17,7 @@ use crate::transactions::setters::{
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, SubCommand,
 };
+use crate::transactions::close_game::close_game;
 
 fn main() {
     let matches = app_from_crate!()
@@ -404,6 +405,44 @@ fn main() {
                         .takes_value(true),
                 ),
         )
+        .subcommand(
+            SubCommand::with_name("close_game")
+                .arg(
+                    Arg::with_name("sign")
+                        .short("s")
+                        .long("sign")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("env")
+                        .short("e")
+                        .long("env")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("user")
+                        .short("u")
+                        .long("user")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("winner")
+                        .short("w")
+                        .long("winner")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("type")
+                        .short("t")
+                        .long("type")
+                        .required(false)
+                        .takes_value(true),
+                ),
+        )
         .get_matches();
 
     if let Some(matches) = matches.subcommand_matches("init") {
@@ -468,5 +507,9 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("join_game") {
         join_game(matches);
+    }
+
+    if let Some(matches) = matches.subcommand_matches("close_game") {
+        close_game(matches);
     }
 }

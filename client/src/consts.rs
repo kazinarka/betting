@@ -1,2 +1,2 @@
-pub const PROGRAM_ID: &str = "8mv1b8uoqYW3T7tVJKb3BJnVuCZCCEHcpoa3c7Grq26c";
+pub const PROGRAM_ID: &str = "EAmvZTnjHeDkPHC7ejWLu28ecDULLRiPv7mpodGyCqx8";
 pub const RENT: &str = "SysvarRent111111111111111111111111111111111";

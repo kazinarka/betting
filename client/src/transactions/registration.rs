@@ -26,7 +26,7 @@ pub fn registration(matches: &ArgMatches) {
     let wallet_keypair = read_keypair_file(wallet_path).expect("Can't open file-wallet");
     let wallet_pubkey = wallet_keypair.pubkey();
 
-    let user = "92at8vLn35rRZqAQ8LGR6Whmtc2b1c2H8vChnNrziY6w"
+    let user = "FUj5oxth59kq6J1V5eKK4pWNLUJ7gMKrdExyxLfqEWAH"
         .parse::<Pubkey>()
         .unwrap();
 

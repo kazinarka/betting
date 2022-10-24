@@ -35,7 +35,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (supported_token_data, _) = Pubkey::find_program_address(
         &[
             "whitelist".as_bytes(),
-            &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+            &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -46,7 +46,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (user_data, _) = Pubkey::find_program_address(
         &[
             "user".as_bytes(),
-            &"BYX8A4T46wfMbyVKty3z8diuLmJydPDrNzwMwKMFz87P"
+            &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -57,7 +57,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (game_data, _) = Pubkey::find_program_address(
         &[
             "game".as_bytes(),
-            &"BYX8A4T46wfMbyVKty3z8diuLmJydPDrNzwMwKMFz87P"
+            &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -73,14 +73,14 @@ pub fn new_game(matches: &ArgMatches) {
 
     let source = spl_associated_token_account::get_associated_token_address(
         &wallet_pubkey,
-        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination = spl_associated_token_account::get_associated_token_address(
         &game_data,
-        &"8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
@@ -119,7 +119,7 @@ pub fn new_game(matches: &ArgMatches) {
             AccountMeta::new(destination, false),
             AccountMeta::new_readonly(spl_token::id(), false),
             AccountMeta::new_readonly(
-                "8hp71urEffeQFo49wSbe43rwAnj2Mw5sgCDWhWGTzYH1"
+                "CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
                     .parse::<Pubkey>()
                     .unwrap(),
                 false,

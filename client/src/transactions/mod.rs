@@ -7,3 +7,4 @@ pub mod manually_close;
 pub mod new_game;
 pub mod registration;
 pub mod setters;
+pub mod close_game;

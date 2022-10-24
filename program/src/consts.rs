@@ -12,4 +12,4 @@ pub const GAME: &[u8] = "game".as_bytes();
 
 pub const BOT: &[u8] = "bot".as_bytes();
 
-pub const ADMIN: &str = "BYX8A4T46wfMbyVKty3z8diuLmJydPDrNzwMwKMFz87P";
+pub const ADMIN: &str = "AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX";
