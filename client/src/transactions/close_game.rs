@@ -30,11 +30,7 @@ pub fn close_game(matches: &ArgMatches) {
 
     println!("Betting {:?}", betting_pda);
 
-    let user = matches
-        .value_of("user")
-        .unwrap()
-        .parse::<Pubkey>()
-        .unwrap();
+    let user = matches.value_of("user").unwrap().parse::<Pubkey>().unwrap();
 
     let winner = matches
         .value_of("winner")
@@ -106,14 +102,18 @@ pub fn close_game(matches: &ArgMatches) {
     println!("Source {:?}", source);
 
     let destination_user = spl_associated_token_account::get_associated_token_address(
-        &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX".parse::<Pubkey>().unwrap(),
+        &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
+            .parse::<Pubkey>()
+            .unwrap(),
         &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination_user1 = spl_associated_token_account::get_associated_token_address(
-        &"FUj5oxth59kq6J1V5eKK4pWNLUJ7gMKrdExyxLfqEWAH".parse::<Pubkey>().unwrap(),
+        &"FUj5oxth59kq6J1V5eKK4pWNLUJ7gMKrdExyxLfqEWAH"
+            .parse::<Pubkey>()
+            .unwrap(),
         &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
@@ -124,25 +124,37 @@ pub fn close_game(matches: &ArgMatches) {
     println!("Destination user 2 {:?}", destination_user1);
 
     let destination_user_referrer = spl_associated_token_account::get_associated_token_address(
-        &"4T6aozF2x9WwdjLzUAVUJjkm5Whyyovp2txPYKLWTiC9".parse::<Pubkey>().unwrap(),
+        &"4T6aozF2x9WwdjLzUAVUJjkm5Whyyovp2txPYKLWTiC9"
+            .parse::<Pubkey>()
+            .unwrap(),
         &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination_user1_referrer = spl_associated_token_account::get_associated_token_address(
-        &"BEDrgp8jU1YnF8BKe15oZ57L2gHEzrEpY4Jds9JMc5Q7".parse::<Pubkey>().unwrap(),
+        &"BEDrgp8jU1YnF8BKe15oZ57L2gHEzrEpY4Jds9JMc5Q7"
+            .parse::<Pubkey>()
+            .unwrap(),
         &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
-    println!("Destination user 1 referrer {:?}", destination_user_referrer);
+    println!(
+        "Destination user 1 referrer {:?}",
+        destination_user_referrer
+    );
 
-    println!("Destination user 2 referrer {:?}", destination_user1_referrer);
+    println!(
+        "Destination user 2 referrer {:?}",
+        destination_user1_referrer
+    );
 
     let destination_owner = spl_associated_token_account::get_associated_token_address(
-        &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX".parse::<Pubkey>().unwrap(),
+        &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
+            .parse::<Pubkey>()
+            .unwrap(),
         &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
             .parse::<Pubkey>()
             .unwrap(),
@@ -166,8 +178,18 @@ pub fn close_game(matches: &ArgMatches) {
             AccountMeta::new(supported_token_data, false),
             AccountMeta::new(user_data, false),
             AccountMeta::new(user1_data, false),
-            AccountMeta::new("AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX".parse::<Pubkey>().unwrap(), false),
-            AccountMeta::new("FUj5oxth59kq6J1V5eKK4pWNLUJ7gMKrdExyxLfqEWAH".parse::<Pubkey>().unwrap(), false),
+            AccountMeta::new(
+                "AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
+            AccountMeta::new(
+                "FUj5oxth59kq6J1V5eKK4pWNLUJ7gMKrdExyxLfqEWAH"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
             AccountMeta::new(game_data, false),
             AccountMeta::new(source, false),
             AccountMeta::new(source, false),
@@ -175,13 +197,28 @@ pub fn close_game(matches: &ArgMatches) {
             AccountMeta::new(destination_user, false),
             AccountMeta::new(destination_user1, false),
             AccountMeta::new(destination_user1, false),
-            AccountMeta::new("4T6aozF2x9WwdjLzUAVUJjkm5Whyyovp2txPYKLWTiC9".parse::<Pubkey>().unwrap(), false),
-            AccountMeta::new("BEDrgp8jU1YnF8BKe15oZ57L2gHEzrEpY4Jds9JMc5Q7".parse::<Pubkey>().unwrap(), false),
+            AccountMeta::new(
+                "4T6aozF2x9WwdjLzUAVUJjkm5Whyyovp2txPYKLWTiC9"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
+            AccountMeta::new(
+                "BEDrgp8jU1YnF8BKe15oZ57L2gHEzrEpY4Jds9JMc5Q7"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
             AccountMeta::new(destination_user_referrer, false),
             AccountMeta::new(destination_user1_referrer, false),
             AccountMeta::new(destination_user_referrer, false),
             AccountMeta::new(destination_user1_referrer, false),
-            AccountMeta::new("AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX".parse::<Pubkey>().unwrap(), false),
+            AccountMeta::new(
+                "AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
+                    .parse::<Pubkey>()
+                    .unwrap(),
+                false,
+            ),
             AccountMeta::new(destination_owner, false),
             AccountMeta::new(destination_owner, false),
             AccountMeta::new_readonly(spl_token::id(), false),

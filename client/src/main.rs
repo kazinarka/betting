@@ -4,6 +4,7 @@ mod transactions;
 
 use crate::transactions::add_bot::add_bot;
 use crate::transactions::add_supported_token::add_supported_token;
+use crate::transactions::close_game::close_game;
 use crate::transactions::forced_close::forced_close;
 use crate::transactions::init::init;
 use crate::transactions::join_game::join_game;
@@ -17,7 +18,6 @@ use crate::transactions::setters::{
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, SubCommand,
 };
-use crate::transactions::close_game::close_game;
 
 fn main() {
     let matches = app_from_crate!()
