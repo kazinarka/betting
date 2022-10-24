@@ -5,12 +5,10 @@ use crate::state::helpers::{get_betting_info, get_game_info, get_user_info};
 use crate::state::structs::{BettingInfo, Game, User};
 use borsh::BorshSerialize;
 use solana_program::account_info::{next_account_info, AccountInfo};
-use solana_program::clock::Clock;
 use solana_program::entrypoint::ProgramResult;
 use solana_program::program::{invoke, invoke_signed};
 use solana_program::program_error::ProgramError;
 use solana_program::pubkey::Pubkey;
-use solana_program::sysvar::Sysvar;
 
 pub fn close(
     accounts: &[AccountInfo],
@@ -135,6 +133,46 @@ pub fn close(
     }
 
     if &spl_associated_token_account::get_associated_token_address(
+        &user_info.referrer,
+        accounts.token.key,
+    ) != accounts.referrer_dest.key
+    {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if &spl_associated_token_account::get_associated_token_address(
+        &user2_info.referrer,
+        accounts.token.key,
+    ) != accounts.referrer1_dest.key
+    {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if &spl_associated_token_account::get_associated_token_address(
+        &user_info.referrer,
+        accounts.token1.key,
+    ) != accounts.referrer_dest1.key
+    {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if &spl_associated_token_account::get_associated_token_address(
+        &user2_info.referrer,
+        accounts.token1.key,
+    ) != accounts.referrer1_dest1.key
+    {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if *accounts.referrer.key != user_info.referrer {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if *accounts.referrer1.key != user2_info.referrer {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    if &spl_associated_token_account::get_associated_token_address(
         &game_info.gamer2,
         accounts.token.key,
     ) != accounts.user1_destination.key
@@ -166,7 +204,6 @@ pub fn close(
 
     internal_transfer(
         &accounts,
-        program_id,
         winner_address,
         looser_address,
         game_info.token1,
@@ -182,7 +219,6 @@ pub fn close(
 
     internal_transfer(
         &accounts,
-        program_id,
         winner_address,
         looser_address,
         game_info.token2,
@@ -201,7 +237,6 @@ pub fn close(
 
 fn internal_transfer(
     accounts: &Accounts,
-    program_id: &Pubkey,
     winner_address: Pubkey,
     looser_address: Pubkey,
     token_address: Pubkey,
@@ -232,7 +267,7 @@ fn internal_transfer(
         accounts.owner_assoc1.clone()
     };
 
-    let accounts_assoc = if winner_address == game_info.gamer1 {
+    let accounts_winner_assoc = if winner_address == game_info.gamer1 {
         if accounts_token.key.clone() == accounts.token.key.clone() {
             accounts.user_destination.clone()
         } else {
@@ -246,23 +281,63 @@ fn internal_transfer(
         }
     };
 
+    let accounts_winner_referrer_assoc = if winner_address == game_info.gamer1 {
+        if accounts_token.key.clone() == accounts.token.key.clone() {
+            accounts.referrer_dest.clone()
+        } else {
+            accounts.referrer_dest1.clone()
+        }
+    } else {
+        if accounts_token.key.clone() == accounts.token.key.clone() {
+            accounts.referrer1_dest.clone()
+        } else {
+            accounts.referrer1_dest1.clone()
+        }
+    };
+
+    let accounts_looser_referrer_assoc = if looser_address == game_info.gamer1 {
+        if accounts_token.key.clone() == accounts.token.key.clone() {
+            accounts.referrer_dest.clone()
+        } else {
+            accounts.referrer_dest1.clone()
+        }
+    } else {
+        if accounts_token.key.clone() == accounts.token.key.clone() {
+            accounts.referrer1_dest.clone()
+        } else {
+            accounts.referrer1_dest1.clone()
+        }
+    };
+
     let (accounts_winner_user, winner_user_info) = if winner_address == game_info.gamer1 {
         (accounts.user_wallet.clone(), user_info.clone())
     } else {
         (accounts.user1_wallet.clone(), user2_info.clone())
     };
 
-    let (accounts_looser_user, looser_user_info) = if looser_address == game_info.gamer1 {
-        (accounts.user_wallet.clone(), user_info)
+    let looser_user_info = if looser_address == game_info.gamer1 {
+        user_info
     } else {
-        (accounts.user1_wallet.clone(), user2_info)
+        user2_info
+    };
+
+    let accounts_winner_referrer = if &winner_user_info.referrer == accounts.referrer.key {
+        accounts.referrer.clone()
+    } else {
+        accounts.referrer1.clone()
+    };
+
+    let accounts_looser_referrer = if &looser_user_info.referrer == accounts.referrer.key {
+        accounts.referrer.clone()
+    } else {
+        accounts.referrer1.clone()
     };
 
     if fee != 0 {
         if winner_user_info.referrer == Pubkey::default()
             && looser_user_info.referrer == Pubkey::default()
         {
-            if accounts_assoc.owner != accounts.token_program.key {
+            if accounts_owner_assoc.owner != accounts.token_program.key {
                 invoke(
                     &spl_associated_token_account::create_associated_token_account(
                         accounts.payer.key,
@@ -300,7 +375,7 @@ fn internal_transfer(
                 &[&[GAME, &user.to_bytes(), &[game_bump]]],
             )?;
         } else if winner_user_info.referrer == Pubkey::default() {
-            if accounts_assoc.owner != accounts.token_program.key {
+            if accounts_owner_assoc.owner != accounts.token_program.key {
                 invoke(
                     &spl_associated_token_account::create_associated_token_account(
                         accounts.payer.key,
@@ -337,12 +412,238 @@ fn internal_transfer(
                 ],
                 &[&[GAME, &user.to_bytes(), &[game_bump]]],
             )?;
+
+            if accounts_looser_referrer_assoc.owner != accounts.token_program.key {
+                invoke(
+                    &spl_associated_token_account::create_associated_token_account(
+                        accounts.payer.key,
+                        &accounts_looser_referrer.key,
+                        accounts_token.key,
+                    ),
+                    &[
+                        accounts.payer.clone(),
+                        accounts_looser_referrer_assoc.clone(),
+                        accounts_looser_referrer.clone(),
+                        accounts_token.clone(),
+                        accounts.system_program.clone(),
+                        accounts.token_program.clone(),
+                        accounts.rent_info.clone(),
+                        accounts.token_assoc.clone(),
+                    ],
+                )?;
+            }
+
+            invoke_signed(
+                &spl_token::instruction::transfer(
+                    accounts.token_program.key,
+                    accounts_source.key,
+                    accounts_looser_referrer_assoc.key,
+                    accounts.game.key,
+                    &[],
+                    fee * (betting_info.referrer_fee / 2) / 100,
+                )?,
+                &[
+                    accounts_source.clone(),
+                    accounts_looser_referrer_assoc.clone(),
+                    accounts.game.clone(),
+                    accounts.token_program.clone(),
+                ],
+                &[&[GAME, &user.to_bytes(), &[game_bump]]],
+            )?;
         } else if looser_user_info.referrer == Pubkey::default() {
+            if accounts_owner_assoc.owner != accounts.token_program.key {
+                invoke(
+                    &spl_associated_token_account::create_associated_token_account(
+                        accounts.payer.key,
+                        &accounts.owner.key,
+                        accounts_token.key,
+                    ),
+                    &[
+                        accounts.payer.clone(),
+                        accounts_owner_assoc.clone(),
+                        accounts.owner.clone(),
+                        accounts_token.clone(),
+                        accounts.system_program.clone(),
+                        accounts.token_program.clone(),
+                        accounts.rent_info.clone(),
+                        accounts.token_assoc.clone(),
+                    ],
+                )?;
+            }
+
+            invoke_signed(
+                &spl_token::instruction::transfer(
+                    accounts.token_program.key,
+                    accounts_source.key,
+                    accounts_owner_assoc.key,
+                    accounts.game.key,
+                    &[],
+                    fee * (betting_info.admin_fee + betting_info.referrer_fee / 2) / 100,
+                )?,
+                &[
+                    accounts_source.clone(),
+                    accounts_owner_assoc.clone(),
+                    accounts.game.clone(),
+                    accounts.token_program.clone(),
+                ],
+                &[&[GAME, &user.to_bytes(), &[game_bump]]],
+            )?;
+
+            if accounts_winner_referrer_assoc.owner != accounts.token_program.key {
+                invoke(
+                    &spl_associated_token_account::create_associated_token_account(
+                        accounts.payer.key,
+                        &accounts_winner_referrer_assoc.key,
+                        accounts_token.key,
+                    ),
+                    &[
+                        accounts.payer.clone(),
+                        accounts_winner_referrer_assoc.clone(),
+                        accounts_winner_referrer.clone(),
+                        accounts_token.clone(),
+                        accounts.system_program.clone(),
+                        accounts.token_program.clone(),
+                        accounts.rent_info.clone(),
+                        accounts.token_assoc.clone(),
+                    ],
+                )?;
+            }
+
+            invoke_signed(
+                &spl_token::instruction::transfer(
+                    accounts.token_program.key,
+                    accounts_source.key,
+                    accounts_winner_referrer_assoc.key,
+                    accounts.game.key,
+                    &[],
+                    fee * (betting_info.referrer_fee / 2) / 100,
+                )?,
+                &[
+                    accounts_source.clone(),
+                    accounts_winner_referrer_assoc.clone(),
+                    accounts.game.clone(),
+                    accounts.token_program.clone(),
+                ],
+                &[&[GAME, &user.to_bytes(), &[game_bump]]],
+            )?;
         } else {
+            if accounts_owner_assoc.owner != accounts.token_program.key {
+                invoke(
+                    &spl_associated_token_account::create_associated_token_account(
+                        accounts.payer.key,
+                        &accounts.owner.key,
+                        accounts_token.key,
+                    ),
+                    &[
+                        accounts.payer.clone(),
+                        accounts_owner_assoc.clone(),
+                        accounts.owner.clone(),
+                        accounts_token.clone(),
+                        accounts.system_program.clone(),
+                        accounts.token_program.clone(),
+                        accounts.rent_info.clone(),
+                        accounts.token_assoc.clone(),
+                    ],
+                )?;
+            }
+
+            invoke_signed(
+                &spl_token::instruction::transfer(
+                    accounts.token_program.key,
+                    accounts_source.key,
+                    accounts_owner_assoc.key,
+                    accounts.game.key,
+                    &[],
+                    fee * betting_info.admin_fee / 100,
+                )?,
+                &[
+                    accounts_source.clone(),
+                    accounts_owner_assoc.clone(),
+                    accounts.game.clone(),
+                    accounts.token_program.clone(),
+                ],
+                &[&[GAME, &user.to_bytes(), &[game_bump]]],
+            )?;
+
+            if accounts_winner_referrer_assoc.owner != accounts.token_program.key {
+                invoke(
+                    &spl_associated_token_account::create_associated_token_account(
+                        accounts.payer.key,
+                        &accounts_winner_referrer_assoc.key,
+                        accounts_token.key,
+                    ),
+                    &[
+                        accounts.payer.clone(),
+                        accounts_winner_referrer_assoc.clone(),
+                        accounts_winner_referrer.clone(),
+                        accounts_token.clone(),
+                        accounts.system_program.clone(),
+                        accounts.token_program.clone(),
+                        accounts.rent_info.clone(),
+                        accounts.token_assoc.clone(),
+                    ],
+                )?;
+            }
+
+            invoke_signed(
+                &spl_token::instruction::transfer(
+                    accounts.token_program.key,
+                    accounts_source.key,
+                    accounts_winner_referrer_assoc.key,
+                    accounts.game.key,
+                    &[],
+                    fee * (betting_info.referrer_fee / 2) / 100,
+                )?,
+                &[
+                    accounts_source.clone(),
+                    accounts_winner_referrer_assoc.clone(),
+                    accounts.game.clone(),
+                    accounts.token_program.clone(),
+                ],
+                &[&[GAME, &user.to_bytes(), &[game_bump]]],
+            )?;
+
+            if accounts_looser_referrer_assoc.owner != accounts.token_program.key {
+                invoke(
+                    &spl_associated_token_account::create_associated_token_account(
+                        accounts.payer.key,
+                        &accounts_looser_referrer.key,
+                        accounts_token.key,
+                    ),
+                    &[
+                        accounts.payer.clone(),
+                        accounts_looser_referrer_assoc.clone(),
+                        accounts_looser_referrer.clone(),
+                        accounts_token.clone(),
+                        accounts.system_program.clone(),
+                        accounts.token_program.clone(),
+                        accounts.rent_info.clone(),
+                        accounts.token_assoc.clone(),
+                    ],
+                )?;
+            }
+
+            invoke_signed(
+                &spl_token::instruction::transfer(
+                    accounts.token_program.key,
+                    accounts_source.key,
+                    accounts_looser_referrer_assoc.key,
+                    accounts.game.key,
+                    &[],
+                    fee * (betting_info.referrer_fee / 2) / 100,
+                )?,
+                &[
+                    accounts_source.clone(),
+                    accounts_looser_referrer_assoc.clone(),
+                    accounts.game.clone(),
+                    accounts.token_program.clone(),
+                ],
+                &[&[GAME, &user.to_bytes(), &[game_bump]]],
+            )?;
         }
     }
 
-    if accounts_assoc.owner != accounts.token_program.key {
+    if accounts_winner_assoc.owner != accounts.token_program.key {
         invoke(
             &spl_associated_token_account::create_associated_token_account(
                 accounts.payer.key,
@@ -351,7 +652,7 @@ fn internal_transfer(
             ),
             &[
                 accounts.payer.clone(),
-                accounts_assoc.clone(),
+                accounts_winner_assoc.clone(),
                 accounts_winner_user.clone(),
                 accounts_token.clone(),
                 accounts.system_program.clone(),
@@ -366,14 +667,14 @@ fn internal_transfer(
         &spl_token::instruction::transfer(
             accounts.token_program.key,
             accounts_source.key,
-            accounts_assoc.key,
+            accounts_winner_assoc.key,
             accounts.game.key,
             &[],
             value - fee,
         )?,
         &[
             accounts_source.clone(),
-            accounts_assoc.clone(),
+            accounts_winner_assoc.clone(),
             accounts.game.clone(),
             accounts.token_program.clone(),
         ],
@@ -402,6 +703,12 @@ pub struct Accounts<'a, 'b> {
     pub user_destination1: &'a AccountInfo<'b>,
     pub user1_destination: &'a AccountInfo<'b>,
     pub user1_destination1: &'a AccountInfo<'b>,
+    pub referrer: &'a AccountInfo<'b>,
+    pub referrer1: &'a AccountInfo<'b>,
+    pub referrer_dest: &'a AccountInfo<'b>,
+    pub referrer1_dest: &'a AccountInfo<'b>,
+    pub referrer_dest1: &'a AccountInfo<'b>,
+    pub referrer1_dest1: &'a AccountInfo<'b>,
     pub owner: &'a AccountInfo<'b>,
     pub owner_assoc: &'a AccountInfo<'b>,
     pub owner_assoc1: &'a AccountInfo<'b>,
@@ -434,6 +741,12 @@ impl<'a, 'b> Accounts<'a, 'b> {
             user_destination1: next_account_info(acc_iter)?,
             user1_destination: next_account_info(acc_iter)?,
             user1_destination1: next_account_info(acc_iter)?,
+            referrer: next_account_info(acc_iter)?,
+            referrer1: next_account_info(acc_iter)?,
+            referrer_dest: next_account_info(acc_iter)?,
+            referrer1_dest: next_account_info(acc_iter)?,
+            referrer_dest1: next_account_info(acc_iter)?,
+            referrer1_dest1: next_account_info(acc_iter)?,
             owner: next_account_info(acc_iter)?,
             owner_assoc: next_account_info(acc_iter)?,
             owner_assoc1: next_account_info(acc_iter)?,
