@@ -16,6 +16,7 @@ pub fn init(
     program_id: &Pubkey,
     manager: Pubkey,
     supported_token: Pubkey,
+    feed: Pubkey,
     is_stablecoin: bool,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
@@ -83,7 +84,7 @@ pub fn init(
     }
 
     if accounts.supported_token.owner != program_id {
-        let size: u64 = 32 + 1;
+        let size: u64 = 32 + 32 + 1;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
@@ -120,6 +121,7 @@ pub fn init(
 
     let supported_token = SupportedToken {
         mint: supported_token,
+        feed,
         is_stablecoin,
     };
     supported_token.serialize(&mut &mut accounts.supported_token.data.borrow_mut()[..])?;

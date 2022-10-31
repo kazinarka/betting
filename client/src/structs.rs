@@ -9,6 +9,8 @@ pub enum BettingInstruction {
         #[allow(dead_code)]
         supported_token: Pubkey,
         #[allow(dead_code)]
+        feed: Pubkey,
+        #[allow(dead_code)]
         is_stablecoin: bool,
     },
     ChangeCloseDelay {
@@ -20,6 +22,8 @@ pub enum BettingInstruction {
     AddSupportedToken {
         #[allow(dead_code)]
         supported_token: Pubkey,
+        #[allow(dead_code)]
+        feed: Pubkey,
         #[allow(dead_code)]
         is_stablecoin: bool,
     },
@@ -55,13 +59,13 @@ pub enum BettingInstruction {
     },
     NewGame {
         #[allow(dead_code)]
-        value: u64,
+        t: u64,
         #[allow(dead_code)]
         support_bot: bool,
     },
     JoinGame {
         #[allow(dead_code)]
-        value: u64,
+        t: u64,
         #[allow(dead_code)]
         support_bot: bool,
         #[allow(dead_code)]
@@ -78,6 +82,12 @@ pub enum BettingInstruction {
         #[allow(dead_code)]
         winner_address: Pubkey,
         #[allow(dead_code)]
-        type_price: u64,
+        t: u64,
+    },
+    SetTypePrice {
+        #[allow(dead_code)]
+        t: u64,
+        #[allow(dead_code)]
+        price: u64,
     },
 }

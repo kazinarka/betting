@@ -17,7 +17,7 @@ pub fn init(matches: &ArgMatches) {
     let program_id = PROGRAM_ID.parse::<Pubkey>().unwrap();
 
     let url = match matches.value_of("env") {
-        Some("dev") => "https://api.devnet.solana.com",
+        Some("dev") => "https://api.testnet.solana.com",
         _ => "https://api.mainnet-beta.solana.com",
     };
     let client = RpcClient::new_with_commitment(url.to_string(), CommitmentConfig::confirmed());
@@ -50,6 +50,9 @@ pub fn init(matches: &ArgMatches) {
         &BettingInstruction::Init {
             manager,
             supported_token: token,
+            feed: "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6"
+                .parse::<Pubkey>()
+                .unwrap(),
             is_stablecoin: true,
         },
         vec![

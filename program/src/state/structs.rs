@@ -9,10 +9,9 @@ pub struct Game {
     pub token2: Pubkey,
     pub amount1: u64,
     pub amount2: u64,
-    pub convert_amount1: i128,
-    pub convert_amount2: i128,
     pub latest_bet: u64,
     pub closed: bool,
+    pub type_price: u64,
 }
 
 #[derive(Clone, Debug, PartialEq, BorshDeserialize, BorshSerialize, BorshSchema)]
@@ -29,6 +28,7 @@ pub struct BettingInfo {
 #[derive(Clone, Debug, PartialEq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub struct SupportedToken {
     pub mint: Pubkey,
+    pub feed: Pubkey,
     pub is_stablecoin: bool,
 }
 
@@ -40,4 +40,9 @@ pub struct User {
     pub support_bots: bool,
     pub is_bot: bool,
     pub turnover: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, BorshDeserialize, BorshSerialize, BorshSchema)]
+pub struct TypePrice {
+    pub price: u64,
 }

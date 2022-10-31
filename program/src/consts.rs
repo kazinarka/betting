@@ -10,6 +10,6 @@ pub const USER: &[u8] = "user".as_bytes();
 
 pub const GAME: &[u8] = "game".as_bytes();
 
-pub const BOT: &[u8] = "bot".as_bytes();
+pub const TYPE_PRICE: &[u8] = "type_price".as_bytes();
 
-pub const ADMIN: &str = "AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX";
+pub const ADMIN: &str = "4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs";

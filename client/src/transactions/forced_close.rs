@@ -17,7 +17,7 @@ pub fn forced_close(matches: &ArgMatches) {
     let program_id = PROGRAM_ID.parse::<Pubkey>().unwrap();
 
     let url = match matches.value_of("env") {
-        Some("dev") => "https://api.devnet.solana.com",
+        Some("dev") => "https://api.testnet.solana.com",
         _ => "https://api.mainnet-beta.solana.com",
     };
     let client = RpcClient::new_with_commitment(url.to_string(), CommitmentConfig::confirmed());
@@ -35,7 +35,7 @@ pub fn forced_close(matches: &ArgMatches) {
     let (supported_token_data, _) = Pubkey::find_program_address(
         &[
             "whitelist".as_bytes(),
-            &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+            &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -57,14 +57,14 @@ pub fn forced_close(matches: &ArgMatches) {
 
     let source = spl_associated_token_account::get_associated_token_address(
         &game_data,
-        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+        &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination = spl_associated_token_account::get_associated_token_address(
         &user,
-        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+        &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
             .parse::<Pubkey>()
             .unwrap(),
     );
@@ -89,7 +89,7 @@ pub fn forced_close(matches: &ArgMatches) {
             AccountMeta::new(destination, false),
             AccountMeta::new_readonly(spl_token::id(), false),
             AccountMeta::new_readonly(
-                "CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+                "Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
                     .parse::<Pubkey>()
                     .unwrap(),
                 false,

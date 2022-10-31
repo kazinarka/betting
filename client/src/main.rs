@@ -13,7 +13,7 @@ use crate::transactions::new_game::new_game;
 use crate::transactions::registration::registration;
 use crate::transactions::setters::{
     lock_bets, new_delay, new_manager, set_admin_fee, set_global_fee, set_transaction_fee,
-    set_winner_fee, unlock_bets,
+    set_type_price, set_winner_fee, unlock_bets,
 };
 use clap::{
     app_from_crate, crate_authors, crate_description, crate_name, crate_version, Arg, SubCommand,
@@ -226,6 +226,37 @@ fn main() {
                     Arg::with_name("fee")
                         .short("f")
                         .long("fee")
+                        .required(false)
+                        .takes_value(true),
+                ),
+        )
+        .subcommand(
+            SubCommand::with_name("set_type_price")
+                .arg(
+                    Arg::with_name("sign")
+                        .short("s")
+                        .long("sign")
+                        .required(true)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("env")
+                        .short("e")
+                        .long("env")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("type")
+                        .short("t")
+                        .long("type")
+                        .required(false)
+                        .takes_value(true),
+                )
+                .arg(
+                    Arg::with_name("price")
+                        .short("p")
+                        .long("price")
                         .required(false)
                         .takes_value(true),
                 ),
@@ -479,6 +510,10 @@ fn main() {
 
     if let Some(matches) = matches.subcommand_matches("set_transaction_fee") {
         set_transaction_fee(matches);
+    }
+
+    if let Some(matches) = matches.subcommand_matches("set_type_price") {
+        set_type_price(matches);
     }
 
     if let Some(matches) = matches.subcommand_matches("add_supported_token") {

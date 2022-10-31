@@ -17,7 +17,7 @@ pub fn new_game(matches: &ArgMatches) {
     let program_id = PROGRAM_ID.parse::<Pubkey>().unwrap();
 
     let url = match matches.value_of("env") {
-        Some("dev") => "https://api.devnet.solana.com",
+        Some("dev") => "https://api.testnet.solana.com",
         _ => "https://api.mainnet-beta.solana.com",
     };
     let client = RpcClient::new_with_commitment(url.to_string(), CommitmentConfig::confirmed());
@@ -30,12 +30,12 @@ pub fn new_game(matches: &ArgMatches) {
 
     println!("Betting {:?}", betting_pda);
 
-    let value = matches.value_of("value").unwrap().parse::<u64>().unwrap();
+    let t = matches.value_of("value").unwrap().parse::<u64>().unwrap();
 
     let (supported_token_data, _) = Pubkey::find_program_address(
         &[
             "whitelist".as_bytes(),
-            &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+            &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -46,7 +46,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (user_data, _) = Pubkey::find_program_address(
         &[
             "user".as_bytes(),
-            &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
+            &"4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -57,7 +57,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (game_data, _) = Pubkey::find_program_address(
         &[
             "game".as_bytes(),
-            &"AJuY2ejuYaEu9PJefnLt6bEQW4Z1JVeQTbkw1Zq367YX"
+            &"4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -73,14 +73,14 @@ pub fn new_game(matches: &ArgMatches) {
 
     let source = spl_associated_token_account::get_associated_token_address(
         &wallet_pubkey,
-        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+        &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination = spl_associated_token_account::get_associated_token_address(
         &game_data,
-        &"CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+        &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
             .parse::<Pubkey>()
             .unwrap(),
     );
@@ -89,10 +89,15 @@ pub fn new_game(matches: &ArgMatches) {
 
     println!("Destination {:?}", destination);
 
+    let (type_price_pda, _) = Pubkey::find_program_address(
+        &["type_price".as_bytes(), t.to_string().as_bytes()],
+        &program_id,
+    );
+
     let instructions = vec![Instruction::new_with_borsh(
         program_id,
         &BettingInstruction::NewGame {
-            value,
+            t,
             support_bot: false,
         },
         vec![
@@ -119,7 +124,7 @@ pub fn new_game(matches: &ArgMatches) {
             AccountMeta::new(destination, false),
             AccountMeta::new_readonly(spl_token::id(), false),
             AccountMeta::new_readonly(
-                "CgTaDeje9owjSxo2et9HS7q7Kyk7hngaPd32HxzGbYLN"
+                "Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
                     .parse::<Pubkey>()
                     .unwrap(),
                 false,
@@ -130,6 +135,7 @@ pub fn new_game(matches: &ArgMatches) {
                     .unwrap(),
                 false,
             ),
+            AccountMeta::new(type_price_pda, false),
         ],
     )];
     let mut tx = Transaction::new_with_payer(&instructions, Some(&wallet_pubkey));

@@ -7,6 +7,7 @@ pub mod init;
 pub mod join_game;
 pub mod manually_close_game;
 pub mod registration;
+pub mod set_type_price;
 pub mod setters;
 
 use crate::error::ContractError;
@@ -20,6 +21,7 @@ use crate::processor::init::init;
 use crate::processor::join_game::bet_with_join;
 use crate::processor::manually_close_game::manually_close;
 use crate::processor::registration::registration;
+use crate::processor::set_type_price::set_type_price;
 use crate::processor::setters::{
     change_close_delay, lock_bets, new_manager, set_admin_fee, set_global_fee, set_transaction_fee,
     set_winner_fee, unlock_bets,
@@ -54,12 +56,14 @@ impl Processor {
             BettingInstruction::Init {
                 manager,
                 supported_token,
+                feed,
                 is_stablecoin,
             } => init(
                 accounts,
                 program_id,
                 manager,
                 supported_token,
+                feed,
                 is_stablecoin,
             )?,
             BettingInstruction::ChangeCloseDelay { new_delay } => {
@@ -69,8 +73,9 @@ impl Processor {
             BettingInstruction::UnlockBets => unlock_bets(accounts, program_id)?,
             BettingInstruction::AddSupportedToken {
                 supported_token,
+                feed,
                 is_stablecoin,
-            } => add_supported_token(accounts, program_id, supported_token, is_stablecoin)?,
+            } => add_supported_token(accounts, program_id, supported_token, feed, is_stablecoin)?,
             BettingInstruction::Registration { referrer, password } => {
                 registration(accounts, program_id, referrer, password)?
             }
@@ -84,21 +89,24 @@ impl Processor {
                 set_transaction_fee(accounts, program_id, fee)?
             }
             BettingInstruction::AddBot { bot } => add_bot(accounts, program_id, bot)?,
-            BettingInstruction::NewGame { value, support_bot } => {
-                bet(accounts, program_id, value, support_bot)?
+            BettingInstruction::NewGame { t, support_bot } => {
+                bet(accounts, program_id, t, support_bot)?
             }
             BettingInstruction::JoinGame {
-                value,
+                t,
                 support_bot,
                 user_master,
-            } => bet_with_join(accounts, program_id, user_master, value, support_bot)?,
+            } => bet_with_join(accounts, program_id, user_master, t, support_bot)?,
             BettingInstruction::ForcedClose { user } => forced_close(accounts, program_id, user)?,
             BettingInstruction::ManuallyClose => manually_close(accounts, program_id)?,
             BettingInstruction::Close {
                 user,
                 winner_address,
-                type_price,
-            } => close(accounts, program_id, user, winner_address, type_price)?,
+                t,
+            } => close(accounts, program_id, user, winner_address, t)?,
+            BettingInstruction::SetTypePrice { t, price } => {
+                set_type_price(accounts, program_id, t, price)?
+            }
         };
 
         Ok(())

@@ -1,10 +1,13 @@
-use crate::consts::{BETTING, GAME, USER, WHITELIST};
+use crate::consts::{BETTING, GAME, TYPE_PRICE, USER, WHITELIST};
 use crate::error::ContractError;
 use crate::processor::require;
-use crate::state::helpers::{get_betting_info, get_supported_token_info, get_user_info};
+use crate::state::helpers::{
+    get_betting_info, get_supported_token_info, get_type_price_info, get_user_info,
+};
 use crate::state::structs::Game;
 use borsh::BorshSerialize;
 use chainlink_solana;
+use num_traits::ToPrimitive;
 use solana_program::account_info::{next_account_info, AccountInfo};
 use solana_program::clock::Clock;
 use solana_program::entrypoint::ProgramResult;
@@ -18,7 +21,7 @@ use solana_program::sysvar::Sysvar;
 pub fn bet(
     accounts: &[AccountInfo],
     program_id: &Pubkey,
-    value: u64,
+    t: u64,
     support_bot: bool,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
@@ -36,6 +39,17 @@ pub fn bet(
     if accounts.pda.key != &betting_pda {
         return Err(ContractError::InvalidInstructionData.into());
     }
+
+    let (type_price, _) =
+        Pubkey::find_program_address(&[TYPE_PRICE, t.to_string().as_bytes()], program_id);
+
+    if *accounts.type_price.key != type_price {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    let type_price_info = get_type_price_info(&accounts.type_price.data.borrow())?;
+
+    let value = type_price_info.price;
 
     let (token_pda, _) =
         Pubkey::find_program_address(&[WHITELIST, &accounts.token.key.to_bytes()], program_id);
@@ -80,14 +94,22 @@ pub fn bet(
         "Token is not supported",
     )?;
 
+    require(
+        supported_token_info.feed == *accounts.feed_account.key,
+        "Wrong feed for this token",
+    )?;
+
     user_info.support_bots = support_bot;
     user_info.in_game = true;
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
-    let convert_value = chainlink_solana::latest_round_data(
+    let convert_value: i128 = chainlink_solana::latest_round_data(
         accounts.chainlink_program.clone(),
         accounts.feed_account.clone(),
-    )?;
+    )?
+    .answer;
+
+    let answer = convert_value.to_u64().unwrap();
 
     if &spl_associated_token_account::get_associated_token_address(
         accounts.payer.key,
@@ -130,7 +152,7 @@ pub fn bet(
             accounts.destination.key,
             accounts.payer.key,
             &[],
-            value,
+            value * answer,
         )?,
         &[
             accounts.source.clone(),
@@ -140,7 +162,7 @@ pub fn bet(
         ],
     )?;
 
-    new_game(accounts, program_id, value, convert_value.answer)?;
+    new_game(accounts, program_id, value * answer, value)?;
 
     Ok(())
 }
@@ -149,7 +171,7 @@ pub fn new_game(
     accounts: Accounts,
     program_id: &Pubkey,
     amount: u64,
-    convert_amount: i128,
+    type_price: u64,
 ) -> ProgramResult {
     let clock = Clock::get()?;
 
@@ -163,7 +185,7 @@ pub fn new_game(
     }
 
     if accounts.game.owner != program_id {
-        let size: u64 = 32 + 32 + 32 + 32 + 8 + 8 + 16 + 16 + 8 + 1;
+        let size: u64 = 32 + 32 + 32 + 32 + 8 + 8 + 8 + 1 + 8;
 
         let required_lamports = rent
             .minimum_balance(size as usize)
@@ -199,10 +221,9 @@ pub fn new_game(
         token2: Pubkey::default(),
         amount1: amount,
         amount2: 0,
-        convert_amount1: convert_amount,
-        convert_amount2: 0,
         latest_bet: clock.unix_timestamp as u64,
         closed: false,
+        type_price,
     };
     game_info.serialize(&mut &mut accounts.game.data.borrow_mut()[..])?;
 
@@ -225,6 +246,7 @@ pub struct Accounts<'a, 'b> {
     pub token_program: &'a AccountInfo<'b>,
     pub token: &'a AccountInfo<'b>,
     pub token_assoc: &'a AccountInfo<'b>,
+    pub type_price: &'a AccountInfo<'b>,
 }
 
 impl<'a, 'b> Accounts<'a, 'b> {
@@ -247,6 +269,7 @@ impl<'a, 'b> Accounts<'a, 'b> {
             token_program: next_account_info(acc_iter)?,
             token: next_account_info(acc_iter)?,
             token_assoc: next_account_info(acc_iter)?,
+            type_price: next_account_info(acc_iter)?,
         })
     }
 }

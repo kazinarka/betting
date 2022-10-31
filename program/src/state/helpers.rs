@@ -1,5 +1,5 @@
 use crate::error::ContractError;
-use crate::state::structs::{BettingInfo, Game, SupportedToken, User};
+use crate::state::structs::{BettingInfo, Game, SupportedToken, TypePrice, User};
 use borsh::BorshDeserialize;
 use solana_program::program_error::ProgramError;
 use std::cell::Ref;
@@ -30,6 +30,14 @@ pub fn get_user_info(data: &Ref<&mut [u8]>) -> Result<User, ProgramError> {
 
 pub fn get_supported_token_info(data: &Ref<&mut [u8]>) -> Result<SupportedToken, ProgramError> {
     if let Ok(data) = SupportedToken::try_from_slice(data) {
+        Ok(data)
+    } else {
+        Err(ContractError::DeserializeError.into())
+    }
+}
+
+pub fn get_type_price_info(data: &Ref<&mut [u8]>) -> Result<TypePrice, ProgramError> {
+    if let Ok(data) = TypePrice::try_from_slice(data) {
         Ok(data)
     } else {
         Err(ContractError::DeserializeError.into())

@@ -1,7 +1,7 @@
-use crate::consts::{ADMIN, BETTING, GAME, USER, WHITELIST};
+use crate::consts::{ADMIN, BETTING, GAME, TYPE_PRICE, USER, WHITELIST};
 use crate::error::ContractError;
 use crate::processor::require;
-use crate::state::helpers::{get_betting_info, get_game_info, get_user_info};
+use crate::state::helpers::{get_betting_info, get_game_info, get_type_price_info, get_user_info};
 use crate::state::structs::{BettingInfo, Game, User};
 use borsh::BorshSerialize;
 use solana_program::account_info::{next_account_info, AccountInfo};
@@ -15,7 +15,7 @@ pub fn close(
     program_id: &Pubkey,
     user: Pubkey,
     winner_address: Pubkey,
-    type_price: u64,
+    t: u64,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 
@@ -72,12 +72,21 @@ pub fn close(
 
     let mut user2_info = get_user_info(&accounts.user2.data.borrow())?;
 
+    let (type_price, _) =
+        Pubkey::find_program_address(&[TYPE_PRICE, t.to_string().as_bytes()], program_id);
+
+    if *accounts.type_price.key != type_price {
+        return Err(ContractError::InvalidInstructionData.into());
+    }
+
+    let type_price_info = get_type_price_info(&accounts.type_price.data.borrow())?;
+
     user_info.in_game = false;
-    user_info.turnover += type_price;
+    user_info.turnover += type_price_info.price;
     user_info.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     user2_info.in_game = false;
-    user2_info.turnover += type_price;
+    user2_info.turnover += type_price_info.price;
     user2_info.serialize(&mut &mut accounts.user2.data.borrow_mut()[..])?;
 
     let total_fee = game_info.amount1 * betting_info.global_fee / 100;
@@ -249,6 +258,8 @@ fn internal_transfer(
     game_info: Game,
     betting_info: BettingInfo,
 ) -> ProgramResult {
+    let mut value = value;
+
     let accounts_token = if &token_address == accounts.token.key {
         accounts.token.clone()
     } else {
@@ -357,6 +368,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.admin_fee + betting_info.referrer_fee) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -364,7 +378,7 @@ fn internal_transfer(
                     accounts_owner_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.admin_fee + betting_info.referrer_fee) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -395,6 +409,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.admin_fee + betting_info.referrer_fee / 2) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -402,7 +419,7 @@ fn internal_transfer(
                     accounts_owner_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.admin_fee + betting_info.referrer_fee / 2) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -433,6 +450,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.referrer_fee / 2) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -440,7 +460,7 @@ fn internal_transfer(
                     accounts_looser_referrer_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.referrer_fee / 2) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -471,6 +491,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.admin_fee + betting_info.referrer_fee / 2) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -478,7 +501,7 @@ fn internal_transfer(
                     accounts_owner_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.admin_fee + betting_info.referrer_fee / 2) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -509,6 +532,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.referrer_fee / 2) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -516,7 +542,7 @@ fn internal_transfer(
                     accounts_winner_referrer_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.referrer_fee / 2) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -547,6 +573,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * betting_info.admin_fee / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -554,7 +583,7 @@ fn internal_transfer(
                     accounts_owner_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * betting_info.admin_fee / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -585,6 +614,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.referrer_fee / 2) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -592,7 +624,7 @@ fn internal_transfer(
                     accounts_winner_referrer_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.referrer_fee / 2) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -623,6 +655,9 @@ fn internal_transfer(
                 )?;
             }
 
+            let curr_fee = fee * (betting_info.referrer_fee / 2) / 100;
+            value -= curr_fee;
+
             invoke_signed(
                 &spl_token::instruction::transfer(
                     accounts.token_program.key,
@@ -630,7 +665,7 @@ fn internal_transfer(
                     accounts_looser_referrer_assoc.key,
                     accounts.game.key,
                     &[],
-                    fee * (betting_info.referrer_fee / 2) / 100,
+                    curr_fee,
                 )?,
                 &[
                     accounts_source.clone(),
@@ -670,7 +705,7 @@ fn internal_transfer(
             accounts_winner_assoc.key,
             accounts.game.key,
             &[],
-            value - fee,
+            value,
         )?,
         &[
             accounts_source.clone(),
@@ -716,6 +751,7 @@ pub struct Accounts<'a, 'b> {
     pub token: &'a AccountInfo<'b>,
     pub token1: &'a AccountInfo<'b>,
     pub token_assoc: &'a AccountInfo<'b>,
+    pub type_price: &'a AccountInfo<'b>,
 }
 
 impl<'a, 'b> Accounts<'a, 'b> {
@@ -754,6 +790,7 @@ impl<'a, 'b> Accounts<'a, 'b> {
             token: next_account_info(acc_iter)?,
             token1: next_account_info(acc_iter)?,
             token_assoc: next_account_info(acc_iter)?,
+            type_price: next_account_info(acc_iter)?,
         })
     }
 }

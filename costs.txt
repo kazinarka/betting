@@ -1,0 +1,24 @@
+Deploy
+2.07416548
+Init
+0.00274724
+Setters
+0.000005
+Add supported token
+0.00134828
+Add bot
+0.00141788
+Registration
+0.00141788
+Set type price (0.000005 if update)
+0.00095156
+Bet
+0.00405572
+Join game
+0.000005
+Forced close
+0.00203428
+Manually close
+0.00203428
+Close
+0.00408356
