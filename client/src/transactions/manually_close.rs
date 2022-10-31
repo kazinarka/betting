@@ -71,7 +71,7 @@ pub fn manually_close(matches: &ArgMatches) {
 
     println!("Destination {:?}", destination);
 
-    let owner = "4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs"
+    let owner = "9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn"
         .parse::<Pubkey>()
         .unwrap();
 

@@ -50,16 +50,16 @@ add_bot:
 	cd client; cargo run -- add_bot -e dev -s /Users/illiafedotov/.config/solana/id.json -b So11111111111111111111111111111111111111112
 
 new_game:
-	cd client; cargo run -- new_game -e dev -s /Users/illiafedotov/.config/solana/id.json -v 1
+	cd client; cargo run -- new_game -e dev -s /Users/illiafedotov/.config/solana/user.json -v 1
 
 forced_close:
-	cd client; cargo run -- forced_close -e dev -s /Users/illiafedotov/.config/solana/id.json -u 4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs
+	cd client; cargo run -- forced_close -e dev -s /Users/illiafedotov/.config/solana/id.json -u 9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn
 
 manually_close:
-	cd client; cargo run -- manually_close -e dev -s /Users/illiafedotov/.config/solana/id.json
+	cd client; cargo run -- manually_close -e dev -s /Users/illiafedotov/.config/solana/user.json
 
 join_game:
-	cd client; cargo run -- join_game -e dev -s /Users/illiafedotov/.config/solana/user.json -m 4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs -v 1
+	cd client; cargo run -- join_game -e dev -s /Users/illiafedotov/.config/solana/user.json -m 9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn -v 1
 
 close_game:
 	cd client; cargo run -- close_game -e dev -s /Users/illiafedotov/.config/solana/id.json -u 4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs -w 9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn -t 1

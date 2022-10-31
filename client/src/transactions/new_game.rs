@@ -46,7 +46,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (user_data, _) = Pubkey::find_program_address(
         &[
             "user".as_bytes(),
-            &"4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs"
+            &"9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -57,7 +57,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (game_data, _) = Pubkey::find_program_address(
         &[
             "game".as_bytes(),
-            &"4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs"
+            &"9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),

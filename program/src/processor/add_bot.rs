@@ -10,6 +10,7 @@ use solana_program::pubkey::Pubkey;
 use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
+use std::convert::TryInto;
 
 pub fn add_bot(accounts: &[AccountInfo], program_id: &Pubkey, bot: Pubkey) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
@@ -29,11 +30,21 @@ pub fn add_bot(accounts: &[AccountInfo], program_id: &Pubkey, bot: Pubkey) -> Pr
         return Err(ContractError::InvalidInstructionData.into());
     }
 
+    let user = User {
+        address: bot,
+        referrer: Pubkey::default(),
+        in_game: false,
+        support_bots: false,
+        is_bot: true,
+        turnover: 0,
+        password: "".to_string(),
+    };
+
     if accounts.bot.owner != program_id {
-        let size: u64 = 32 + 32 + 1 + 1 + 1 + 8;
+        let size = (user.try_to_vec()?).len();
 
         let required_lamports = rent
-            .minimum_balance(size as usize)
+            .minimum_balance(size)
             .max(1)
             .saturating_sub(accounts.bot.lamports());
 
@@ -47,7 +58,7 @@ pub fn add_bot(accounts: &[AccountInfo], program_id: &Pubkey, bot: Pubkey) -> Pr
         )?;
 
         invoke_signed(
-            &system_instruction::allocate(&data_address, size),
+            &system_instruction::allocate(&data_address, size.try_into().unwrap()),
             &[accounts.bot.clone(), accounts.system_program.clone()],
             &[&[USER, &bot.to_bytes(), &[data_address_bump]]],
         )?;
@@ -59,14 +70,6 @@ pub fn add_bot(accounts: &[AccountInfo], program_id: &Pubkey, bot: Pubkey) -> Pr
         )?;
     }
 
-    let user = User {
-        address: bot,
-        referrer: Pubkey::default(),
-        in_game: false,
-        support_bots: false,
-        is_bot: true,
-        turnover: 0,
-    };
     user.serialize(&mut &mut accounts.bot.data.borrow_mut()[..])?;
 
     Ok(())

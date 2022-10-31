@@ -11,12 +11,13 @@ use solana_program::pubkey::Pubkey;
 use solana_program::rent::Rent;
 use solana_program::system_instruction;
 use solana_program::sysvar::Sysvar;
+use std::convert::TryInto;
 
 pub fn registration(
     accounts: &[AccountInfo],
     program_id: &Pubkey,
     referrer: Pubkey,
-    _password: String,
+    password: String,
 ) -> ProgramResult {
     let accounts = Accounts::new(accounts)?;
 
@@ -34,11 +35,21 @@ pub fn registration(
         "refferer must not be equal to user wallet",
     )?;
 
+    let user = User {
+        address: *accounts.payer.key,
+        referrer,
+        in_game: false,
+        support_bots: false,
+        is_bot: false,
+        turnover: 0,
+        password,
+    };
+
     if accounts.user.owner != program_id {
-        let size: u64 = 32 + 32 + 1 + 1 + 1 + 8;
+        let size = (user.try_to_vec()?).len();
 
         let required_lamports = rent
-            .minimum_balance(size as usize)
+            .minimum_balance(size)
             .max(1)
             .saturating_sub(accounts.user.lamports());
 
@@ -52,7 +63,7 @@ pub fn registration(
         )?;
 
         invoke_signed(
-            &system_instruction::allocate(&data_address, size),
+            &system_instruction::allocate(&data_address, size.try_into().unwrap()),
             &[accounts.user.clone(), accounts.system_program.clone()],
             &[&[USER, &accounts.payer.key.to_bytes(), &[data_address_bump]]],
         )?;
@@ -64,14 +75,6 @@ pub fn registration(
         )?;
     }
 
-    let user = User {
-        address: *accounts.payer.key,
-        referrer,
-        in_game: false,
-        support_bots: false,
-        is_bot: false,
-        turnover: 0,
-    };
     user.serialize(&mut &mut accounts.user.data.borrow_mut()[..])?;
 
     Ok(())

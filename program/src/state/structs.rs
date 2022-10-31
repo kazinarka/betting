@@ -40,6 +40,7 @@ pub struct User {
     pub support_bots: bool,
     pub is_bot: bool,
     pub turnover: u64,
+    pub password: String,
 }
 
 #[derive(Clone, Debug, PartialEq, BorshDeserialize, BorshSerialize, BorshSchema)]
