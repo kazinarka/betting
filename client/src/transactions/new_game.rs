@@ -17,7 +17,7 @@ pub fn new_game(matches: &ArgMatches) {
     let program_id = PROGRAM_ID.parse::<Pubkey>().unwrap();
 
     let url = match matches.value_of("env") {
-        Some("dev") => "https://api.testnet.solana.com",
+        Some("dev") => "https://api.devnet.solana.com",
         _ => "https://api.mainnet-beta.solana.com",
     };
     let client = RpcClient::new_with_commitment(url.to_string(), CommitmentConfig::confirmed());
@@ -35,7 +35,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (supported_token_data, _) = Pubkey::find_program_address(
         &[
             "whitelist".as_bytes(),
-            &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
+            &"3e7FKiXHn1kmMSTLDgJkMWxwd2WA6PM9niYcxbfk8EKN"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -46,7 +46,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (user_data, _) = Pubkey::find_program_address(
         &[
             "user".as_bytes(),
-            &"9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn"
+            &"4kMtMnYWFbsMc7M3jcdnfCceHaiXmrqaMz2QZQAmn88i"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -57,7 +57,7 @@ pub fn new_game(matches: &ArgMatches) {
     let (game_data, _) = Pubkey::find_program_address(
         &[
             "game".as_bytes(),
-            &"9LZr77sE8J6bHYXcZXM9AeUJEssWZKh3AhmaXj3G7uUn"
+            &"4kMtMnYWFbsMc7M3jcdnfCceHaiXmrqaMz2QZQAmn88i"
                 .parse::<Pubkey>()
                 .unwrap()
                 .to_bytes(),
@@ -73,14 +73,14 @@ pub fn new_game(matches: &ArgMatches) {
 
     let source = spl_associated_token_account::get_associated_token_address(
         &wallet_pubkey,
-        &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
+        &"3e7FKiXHn1kmMSTLDgJkMWxwd2WA6PM9niYcxbfk8EKN"
             .parse::<Pubkey>()
             .unwrap(),
     );
 
     let destination = spl_associated_token_account::get_associated_token_address(
         &game_data,
-        &"Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
+        &"3e7FKiXHn1kmMSTLDgJkMWxwd2WA6PM9niYcxbfk8EKN"
             .parse::<Pubkey>()
             .unwrap(),
     );
@@ -115,7 +115,7 @@ pub fn new_game(matches: &ArgMatches) {
                 false,
             ),
             AccountMeta::new_readonly(
-                "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6"
+                "99B2bTijsU6f1GCT73HmdR7HCFFjGMBcPZY6jZ96ynrR"
                     .parse::<Pubkey>()
                     .unwrap(),
                 false,
@@ -124,7 +124,7 @@ pub fn new_game(matches: &ArgMatches) {
             AccountMeta::new(destination, false),
             AccountMeta::new_readonly(spl_token::id(), false),
             AccountMeta::new_readonly(
-                "Kg7atGGZGiznRLRfbCizcJvcZdSzjYURRJqwEdx5Xqe"
+                "3e7FKiXHn1kmMSTLDgJkMWxwd2WA6PM9niYcxbfk8EKN"
                     .parse::<Pubkey>()
                     .unwrap(),
                 false,

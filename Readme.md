@@ -33,7 +33,7 @@ change ADMIN const with pubkey of your admin address
 
 - Get pubkey of contract
 
-> solana address -k /betting/target/deploy/betting-contract.json
+> solana address -k /betting/target/deploy/betting.json
 
 - program/src/lib.rs
 

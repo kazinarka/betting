@@ -12,4 +12,6 @@ pub const GAME: &[u8] = "game".as_bytes();
 
 pub const TYPE_PRICE: &[u8] = "type_price".as_bytes();
 
-pub const ADMIN: &str = "4mDt5VKSWJbk24HwFD5Na2pqB3WZj7bdrxPwCDT4BAcs";
+pub const ADMIN: &str = "4kMtMnYWFbsMc7M3jcdnfCceHaiXmrqaMz2QZQAmn88i";
+
+pub const PRECISION: u64 = 100000000;

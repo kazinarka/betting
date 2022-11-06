@@ -1,4 +1,4 @@
-use crate::consts::{BETTING, GAME, TYPE_PRICE, USER, WHITELIST};
+use crate::consts::{BETTING, GAME, PRECISION, TYPE_PRICE, USER, WHITELIST};
 use crate::error::ContractError;
 use crate::processor::require;
 use crate::state::helpers::{
@@ -169,7 +169,7 @@ pub fn bet_with_join(
                 accounts.destination.key,
                 accounts.payer.key,
                 &[],
-                value * answer,
+                value * PRECISION * PRECISION / answer,
             )?,
             &[
                 accounts.source.clone(),
@@ -179,7 +179,12 @@ pub fn bet_with_join(
             ],
         )?;
 
-        join_game(accounts, program_id, user_master, value * answer)?;
+        join_game(
+            accounts,
+            program_id,
+            user_master,
+            value * PRECISION * PRECISION / answer,
+        )?;
     } else {
         return Err(ContractError::InvalidInstructionData.into());
     }

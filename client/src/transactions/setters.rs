@@ -252,7 +252,7 @@ pub fn set_type_price(matches: &ArgMatches) {
     let program_id = PROGRAM_ID.parse::<Pubkey>().unwrap();
 
     let url = match matches.value_of("env") {
-        Some("dev") => "https://api.testnet.solana.com",
+        Some("dev") => "https://api.devnet.solana.com",
         _ => "https://api.mainnet-beta.solana.com",
     };
     let client = RpcClient::new_with_commitment(url.to_string(), CommitmentConfig::confirmed());

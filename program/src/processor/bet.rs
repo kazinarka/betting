@@ -1,4 +1,4 @@
-use crate::consts::{BETTING, GAME, TYPE_PRICE, USER, WHITELIST};
+use crate::consts::{BETTING, GAME, PRECISION, TYPE_PRICE, USER, WHITELIST};
 use crate::error::ContractError;
 use crate::processor::require;
 use crate::state::helpers::{
@@ -152,7 +152,7 @@ pub fn bet(
             accounts.destination.key,
             accounts.payer.key,
             &[],
-            value * answer,
+            value * PRECISION * PRECISION / answer,
         )?,
         &[
             accounts.source.clone(),
@@ -162,7 +162,12 @@ pub fn bet(
         ],
     )?;
 
-    new_game(accounts, program_id, value * answer, value)?;
+    new_game(
+        accounts,
+        program_id,
+        value * PRECISION * PRECISION / answer,
+        value,
+    )?;
 
     Ok(())
 }
